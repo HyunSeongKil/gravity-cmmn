@@ -1,3 +1,8 @@
+## v1.24.0103
+
+- zip(Path, Path) 추가
+- zip(Path, Path, String) 추가
+
 ## v3.23.1107
 
 - JDK 17 지원

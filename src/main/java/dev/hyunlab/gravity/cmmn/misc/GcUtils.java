@@ -2,6 +2,8 @@ package dev.hyunlab.gravity.cmmn.misc;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -29,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -126,6 +132,57 @@ public class GcUtils {
                 .map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
                 .collect(Collectors.joining())
         : str;
+  }
+
+  /**
+   * 압축 파일 생성
+   * 
+   * @param srcPaths
+   * @param destPath
+   * @return
+   * @throws IOException
+   */
+  public static Path zip(List<Path> srcPaths, Path destPath) throws IOException {
+    String filename = srcPaths.size() +
+        "ea_" +
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) +
+        ".zip";
+
+    return zip(srcPaths, destPath, filename);
+  }
+
+  /**
+   * 압축 파일 생성
+   * 
+   * @param srcPaths
+   * @param destPath
+   * @param filename
+   * @return
+   * @throws IOException
+   */
+  public static Path zip(List<Path> srcPaths, Path destPath, String filename) throws IOException {
+    destPath.toFile().mkdirs();
+
+    try (final FileOutputStream fos = new FileOutputStream(destPath.resolve(filename).toString())) {
+      try (ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+
+        for (Path p : srcPaths) {
+          try (FileInputStream fis = new FileInputStream(p.toFile())) {
+            ZipEntry zipEntry = new ZipEntry(p.getFileName().toString());
+            zipOut.putNextEntry(zipEntry);
+
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = fis.read(bytes)) >= 0) {
+              zipOut.write(bytes, 0, length);
+            }
+
+          }
+        }
+      }
+    }
+
+    return destPath.resolve(filename);
   }
 
   /**
