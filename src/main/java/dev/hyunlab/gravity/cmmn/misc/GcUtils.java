@@ -135,6 +135,17 @@ public class GcUtils {
   }
 
   /**
+   * 임시 디렉터리에 압축 파일 생성
+   * 
+   * @param srcPaths
+   * @return
+   * @throws IOException
+   */
+  public static Path zip(List<Path> srcPaths) throws IOException {
+    return zip(srcPaths, getTempPath());
+  }
+
+  /**
    * 압축 파일 생성
    * 
    * @param srcPaths
