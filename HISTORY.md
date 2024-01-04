@@ -1,3 +1,7 @@
+## v1.24.0104
+
+- copyProperties(Object, Class, Map, List) 결함 수정
+
 ## v1.24.0103
 
 - zip(Path, Path) 추가

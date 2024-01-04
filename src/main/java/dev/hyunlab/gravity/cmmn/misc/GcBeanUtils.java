@@ -123,10 +123,14 @@ public class GcBeanUtils {
           continue;
         }
 
+        // default value를 먼저 적용
+        if (defaultValueMap.get(f.getName()) != null) {
+          f.set(targetObj, defaultValueMap.get(f.getName()));
+          continue;
+        }
+
         if (sourceField.get(source) != null) {
           f.set(targetObj, sourceField.get(source));
-        } else if (defaultValueMap.get(f.getName()) != null) {
-          f.set(targetObj, defaultValueMap.get(f.getName()));
         }
       }
 
