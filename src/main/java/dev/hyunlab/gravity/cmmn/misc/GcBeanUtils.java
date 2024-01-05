@@ -53,12 +53,82 @@ public class GcBeanUtils {
   /**
    * @see copyProperties(Object, Class<T>, Map<String, Object>, List<String>)
    * @param <T>
-   * @param source
-   * @param targetClass
+   * @param srcObj
+   * @param destClass
    * @return
    */
-  public static <T> T copyProperties(Object source, Class<T> targetClass) {
-    return copyProperties(source, targetClass, Map.of(), List.of());
+  public static <T> T copyProperties(Object srcObj, Class<T> destClass) {
+    return copyProperties(srcObj, destClass, Map.of(), List.of());
+  }
+
+  /**
+   * map의 값을 class로 복사
+   * ! destClass의 fieldName과 srcMap의 key가 같아야 함
+   * 
+   * @param <T>
+   * @param srcMap           소스 맵
+   * @param destClass        신규로 생성할 클래스
+   * @param defaultValueMap  필드의 값이 null일 경우 대체할 값 목록 key:필드명, value:대체할 값
+   * @param exceptFieldNames 복사하지 않을 필드 목록
+   * @return 생성된 클래스 인스턴스
+   */
+  public static <T> T copyProperties(Map<String, Object> srcMap, Class<T> destClass,
+      Map<String, Object> defaultValueMap,
+      List<String> exceptFieldNames) {
+    Function<String, Boolean> isExceptField = (fieldName) -> {
+      if (exceptFieldNames == null) {
+        return false;
+      }
+
+      return exceptFieldNames
+          .stream()
+          .filter(x -> x.equals(fieldName))
+          .count() > 0;
+    };
+    ////
+
+    try {
+      T destObj = newInstance(destClass);
+
+      Field[] destFields = destObj.getClass().getDeclaredFields();
+
+      for (int i = 0; i < destFields.length; i++) {
+        Field f = destFields[i];
+
+        if (f == null) {
+          continue;
+        }
+
+        String fieldName = f.getName();
+
+        if (isExceptField.apply(fieldName)) {
+          continue;
+        }
+        if (!srcMap.containsKey(fieldName)) {
+          continue;
+        }
+        if (srcMap.get(fieldName) == null && defaultValueMap.get(fieldName) == null) {
+          continue;
+        }
+
+        f.setAccessible(true);
+
+        // default value를 먼저 적용
+        if (defaultValueMap.get(fieldName) != null) {
+          f.set(destObj, defaultValueMap.get(fieldName));
+          continue;
+        }
+
+        if (srcMap.get(fieldName) != null) {
+          f.set(destObj, srcMap.get(fieldName));
+        }
+      }
+
+      return destObj;
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
