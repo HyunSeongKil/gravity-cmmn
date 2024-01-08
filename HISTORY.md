@@ -1,3 +1,7 @@
+## v1.24.0108
+
+- uuid(), uuid4(), uuid8(), uuid12() 첫 char가 항상 문자가 되도록 수정
+
 ## v1.24.0104
 
 - copyProperties(Object, Class, Map, List) 결함 수정

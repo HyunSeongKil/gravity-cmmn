@@ -63,20 +63,33 @@ public class GcUtils {
 
   /**
    * uuid 문자열 생성. 하이픈은 제거됨
+   * ! 1st char는 항상 문자임
    * 
    * @return
    */
   public static String uuid() {
-    return UUID.randomUUID().toString().replaceAll("-", "");
+    String str;
+    while (true) {
+      str = UUID.randomUUID().toString();
+
+      // 첫글자가 문자이면
+      if (Character.isDigit(str.charAt(0))) {
+        str = str.replaceAll("-", "");
+        break;
+      }
+    }
+
+    return str;
   }
 
   /**
    * 짧은(uuid의 앞 8자리) uuid 생성
+   * ! 1st char는 항상 문자임
    * 
    * @return
    */
   public static String shortUuid() {
-    return UUID.randomUUID().toString().split("-")[0];
+    return uuid().substring(0, 8);
   }
 
   /**
@@ -89,6 +102,7 @@ public class GcUtils {
 
   /**
    * 짧은(uuid의 앞 12자리) uuid 생성
+   * ! 1st char는 항상 문자임
    * 
    * @return
    */
