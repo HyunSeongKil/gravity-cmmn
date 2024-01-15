@@ -73,7 +73,7 @@ public class GcUtils {
       str = UUID.randomUUID().toString();
 
       // 첫글자가 문자이면
-      if (Character.isDigit(str.charAt(0))) {
+      if (!Character.isDigit(str.charAt(0))) {
         str = str.replaceAll("-", "");
         break;
       }
