@@ -1,3 +1,7 @@
+## v1.24.0224
+
+- GcDbService, GcDbServiceImpl 추가
+
 ## v1.24.0108
 
 - uuid(), uuid4(), uuid8(), uuid12() 첫 char가 항상 문자가 되도록 수정
