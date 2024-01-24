@@ -3,9 +3,14 @@ package dev.hyunlab.gravity.cmmn.service.impl;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -32,6 +37,16 @@ public class GcDbServiceImpl implements GcDbService {
       }
       return list;
     }
+  }
+
+  @Override
+  public Set<String> getColumnNames(ResultSetMetaData rsmd) throws SQLException {
+    Set<String> list = new HashSet<>();
+    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+      list.add(rsmd.getColumnName(i));
+    }
+    return list;
+
   }
 
   @Override
@@ -75,6 +90,37 @@ public class GcDbServiceImpl implements GcDbService {
     try (Statement stmt = conn.createStatement()) {
       stmt.executeUpdate(sql);
     }
+  }
+
+  @Override
+  public List<Map<String, Object>> getDatas(Connection conn, String sql) throws SQLException {
+    return getDatas(conn.createStatement(), sql);
+  }
+
+  @Override
+  public List<Map<String, Object>> getDatas(Statement stmt, String sql) throws SQLException {
+    List<Map<String, Object>> datas = new ArrayList<>();
+
+    try (ResultSet rs = stmt.executeQuery(sql)) {
+      Set<String> columnNames = getColumnNames(rs.getMetaData());
+
+      while (rs.next()) {
+        datas.add(createDataMap(rs, columnNames));
+      }
+
+    }
+
+    return datas;
+  }
+
+  private Map<String, Object> createDataMap(ResultSet rs, Set<String> columnNames) throws SQLException {
+    Map<String, Object> map = new LinkedHashMap<>();
+
+    for (String columnName : columnNames) {
+      map.put(columnName, rs.getObject(columnName));
+    }
+
+    return map;
   }
 
 }
