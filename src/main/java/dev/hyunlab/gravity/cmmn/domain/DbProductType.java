@@ -1,5 +1,9 @@
 package dev.hyunlab.gravity.cmmn.domain;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public enum DbProductType {
   Oracle("Oracle"), MySQL("MySQL"), MariaDB("MariaDB"), MSSQL("MSSQL"), PostgreSQL("PostgreSQL");
 
@@ -20,6 +24,15 @@ public enum DbProductType {
       }
     }
     return null;
+  }
+
+  public static DbProductType of(Connection conn) throws SQLException {
+    return of(conn.getMetaData().getDatabaseProductName());
+
+  }
+
+  public static DbProductType of(Statement stmt) throws SQLException {
+    return of(stmt.getConnection());
   }
 
   public static boolean isMariaDB(String productName) {
