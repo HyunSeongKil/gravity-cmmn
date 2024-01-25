@@ -37,6 +37,18 @@ public class GcResultMap extends HashMap<String, Object> {
   }
 
   /**
+   * 생성 with code, message
+   * 보통, 데이터없이 오류코드와 메시지만 리턴할 때 사용
+   * 
+   * @param code
+   * @param message
+   * @return
+   */
+  public static GcResultMap withCode(String code, String message) {
+    return of(Map.of(), code, message);
+  }
+
+  /**
    * 생성
    * 
    * @param data 데이터
