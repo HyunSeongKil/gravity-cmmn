@@ -1,9 +1,7 @@
 package dev.hyunlab.gravity.cmmn.misc;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,20 +9,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.hibernate.validator.internal.util.privilegedactions.NewInstance;
-import org.reflections.*;
-import org.reflections.scanners.*;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * bean 관련 유틸
@@ -161,7 +157,7 @@ public class GcBeanUtils {
         return false;
       }
 
-      return exceptFieldNames.stream().filter(x -> x.equals(fieldName)).count() > 0;
+      return exceptFieldNames.contains(fieldName);
     };
     ////
 
@@ -223,6 +219,7 @@ public class GcBeanUtils {
    * @return 생성된 entity 인스턴스
    * @throws Exception
    */
+  @Deprecated(since = "2024-01-00", forRemoval = true)
   public static <DTO, ENTITY> ENTITY dtoToEntity(DTO dtoObj, Class<ENTITY> entityClass) throws Exception {
     return dtoToEntity(dtoObj, entityClass, List.of());
   }
@@ -242,6 +239,7 @@ public class GcBeanUtils {
    * @return 생성된 entity 인스턴스
    * @throws Exception
    */
+  @Deprecated(since = "2024-01-00", forRemoval = true)
   public static <DTO, ENTITY> ENTITY dtoToEntity(DTO dtoObj, Class<ENTITY> entityClass, List<String> exceptFieldNames)
       throws Exception {
     if (null == dtoObj || null == entityClass || null == exceptFieldNames) {
@@ -548,6 +546,7 @@ public class GcBeanUtils {
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
    */
+  @Deprecated(since = "2024-01-00", forRemoval = true)
   public static <T> T copyMapToObj(Map<String, Object> srcMap, Class<T> destClass)
       throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
     Map<String, String> mappingMap = new HashMap<>();
@@ -573,6 +572,7 @@ public class GcBeanUtils {
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
    */
+  @Deprecated(since = "2024-01-00", forRemoval = true)
   public static <T> T copyMapToObj(Map<String, Object> srcMap, Class<T> destClass,
       Map<String, String> mappingMap)
       throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
@@ -657,6 +657,7 @@ public class GcBeanUtils {
    * @param obj
    * @return
    */
+  @Deprecated(since = "2024-01-00", forRemoval = true)
   public static Map<String, Object> copyObjectToMap(Object obj) {
     Map<String, Object> map = new HashMap<>();
 
