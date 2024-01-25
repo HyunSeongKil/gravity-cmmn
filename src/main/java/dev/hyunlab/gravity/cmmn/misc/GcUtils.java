@@ -88,6 +88,7 @@ public class GcUtils {
    * 
    * @return
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static String shortUuid() {
     return uuid().substring(0, 8);
   }
@@ -213,6 +214,7 @@ public class GcUtils {
   /**
    * 8자리의 랜덤 문자열 생성
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static String createRandom8String() {
     return GcUtils.createRandom8String("");
   }
@@ -613,6 +615,7 @@ public class GcUtils {
    * @return
    * @throws UnsupportedEncodingException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static HttpRequest createHttpRequest(String uri) throws UnsupportedEncodingException {
     return createGetHttpRequest(uri, null, null);
   }
@@ -625,6 +628,7 @@ public class GcUtils {
    * @return
    * @throws UnsupportedEncodingException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static HttpRequest createHttpRequest(String uri, Map<String, Object> param)
       throws UnsupportedEncodingException {
     return createGetHttpRequest(uri, param, null);
@@ -639,6 +643,7 @@ public class GcUtils {
    * @return
    * @throws UnsupportedEncodingException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static HttpRequest createGetHttpRequest(String uri, Map<String, Object> param, Map<String, Object> header)
       throws UnsupportedEncodingException {
     HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().GET();
@@ -676,6 +681,7 @@ public class GcUtils {
    * @return
    * @throws JsonProcessingException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static HttpRequest createPostHttpRequest(String uri, Object param, Map<String, Object> header)
       throws JsonProcessingException {
     //
@@ -705,6 +711,7 @@ public class GcUtils {
    * @return
    * @throws JsonProcessingException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static HttpRequest createPutHttpRequest(String uri, Object param, Map<String, Object> header)
       throws JsonProcessingException {
     //
@@ -1035,6 +1042,7 @@ public class GcUtils {
    * @throws IOException
    * @throws InterruptedException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static String requestByPut(HttpClient client, String uri) throws IOException, InterruptedException {
     return requestByPut(client, createPutHttpRequest(uri, Map.of(), Map.of()));
   }
@@ -1049,6 +1057,7 @@ public class GcUtils {
    * @throws IOException
    * @throws InterruptedException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static String requestByPut(HttpClient client, String uri, Object param)
       throws IOException, InterruptedException {
     return requestByPut(client, createPutHttpRequest(uri, param, Map.of()));
@@ -1065,6 +1074,7 @@ public class GcUtils {
    * @throws IOException
    * @throws InterruptedException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static String requestByPut(HttpClient client, String uri, Object param, Map<String, Object> header)
       throws IOException, InterruptedException {
     return requestByPut(client, createPutHttpRequest(uri, param, header));
@@ -1079,6 +1089,7 @@ public class GcUtils {
    * @throws IOException
    * @throws InterruptedException
    */
+  @Deprecated(since = "20240100", forRemoval = true)
   public static String requestByPut(HttpClient client, HttpRequest request) throws IOException, InterruptedException {
     return client.send(request, HttpResponse.BodyHandlers.ofString()).body().toString();
   }
