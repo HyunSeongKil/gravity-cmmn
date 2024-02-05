@@ -81,10 +81,40 @@ public class GcBeanUtils {
           .filter(x -> x.equals(fieldName))
           .count() > 0;
     };
+
+    Function<String, Boolean> mapContainsKey = (fieldName) -> {
+      return (srcMap.containsKey(GcUtils.camelToSnake(fieldName)) ||
+          srcMap.containsKey(GcUtils.camelToKebab(fieldName)) ||
+          srcMap.containsKey(fieldName));
+    };
+
+    Function<String, Object> getMapValue = (fieldName) -> {
+      if (srcMap.containsKey(GcUtils.camelToSnake(fieldName))) {
+        return srcMap.get(GcUtils.camelToSnake(fieldName));
+      }
+
+      if (srcMap.containsKey(GcUtils.camelToKebab(fieldName))) {
+        return srcMap.get(GcUtils.camelToKebab(fieldName));
+      }
+
+      if (srcMap.containsKey(fieldName)) {
+        return srcMap.get(fieldName);
+      }
+
+      return null;
+    };
     ////
 
     try {
       T destObj = newInstance(destClass);
+
+      if (srcMap == null || srcMap.isEmpty()) {
+        return destObj;
+      }
+
+      if (destClass == null) {
+        return destObj;
+      }
 
       Field[] destFields = destObj.getClass().getDeclaredFields();
 
@@ -100,24 +130,25 @@ public class GcBeanUtils {
         if (isExceptField.apply(fieldName)) {
           continue;
         }
-        if (!srcMap.containsKey(fieldName)) {
-          continue;
-        }
-        if (srcMap.get(fieldName) == null && defaultValueMap.get(fieldName) == null) {
-          continue;
-        }
-
-        f.setAccessible(true);
 
         // default value를 먼저 적용
-        if (defaultValueMap.get(fieldName) != null) {
+        if (defaultValueMap.containsKey(fieldName)) {
+          f.setAccessible(true);
           f.set(destObj, defaultValueMap.get(fieldName));
           continue;
         }
 
-        if (srcMap.get(fieldName) != null) {
-          f.set(destObj, srcMap.get(fieldName));
+        if (mapContainsKey.apply(fieldName)) {
+          Object value = getMapValue.apply(fieldName);
+
+          if (value != null) {
+            // TODO f의 타입과 value 타입이 다를 경우 변환하여 적용
+            f.setAccessible(true);
+            f.set(destObj, value);
+            continue;
+          }
         }
+
       }
 
       return destObj;
