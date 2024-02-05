@@ -16,4 +16,7 @@ public class GcConst {
     public static final String SIZE = "size";
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
+
+    public static final String DELI_PIPE = "|";
+    public static final String DELI_COMMA = ",";
 }
