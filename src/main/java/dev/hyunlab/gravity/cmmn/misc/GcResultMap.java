@@ -11,9 +11,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * result map
  * 
+ * @param <T>
+ * 
  * @since 20210721
  */
-public class GcResultMap extends HashMap<String, Object> {
+@SuppressWarnings("unchecked")
+public class GcResultMap<T> extends HashMap<String, Object> {
 
   /**
    * 빈값 리턴
@@ -131,12 +134,24 @@ public class GcResultMap extends HashMap<String, Object> {
     this.put(GcConst.DATA, data);
   }
 
+  public T getData() {
+    return (T) this.get(GcConst.DATA);
+  }
+
   public void putCode(String code) {
     this.put(GcConst.CODE, code);
   }
 
+  public String getCode() {
+    return (String) this.get(GcConst.CODE);
+  }
+
   public void putMessage(Object message) {
     this.put(GcConst.MESSAGE, message);
+  }
+
+  public String getMessage(String message) {
+    return (String) this.get(GcConst.MESSAGE);
   }
 
   /**
