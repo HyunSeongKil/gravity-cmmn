@@ -19,4 +19,6 @@ public class GcConst {
 
     public static final String DELI_PIPE = "|";
     public static final String DELI_COMMA = ",";
+    public static final String DELI_UNDERBAR = "_";
+    public static final String DELI_HYPEN = "-";
 }
