@@ -120,10 +120,10 @@ public class GcUtils {
    * @return snakeToCamel
    */
   public static String snakeToCamel(String str) {
-    return str.indexOf("_") != -1
-        ? str.substring(0, str.indexOf("_")) +
+    return str.indexOf(GcConst.DELI_UNDERBAR) != -1
+        ? str.substring(0, str.indexOf(GcConst.DELI_UNDERBAR)) +
             Arrays
-                .stream(str.substring(str.indexOf("_") + 1).split("_"))
+                .stream(str.substring(str.indexOf(GcConst.DELI_UNDERBAR) + 1).split(GcConst.DELI_UNDERBAR))
                 .map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
                 .collect(Collectors.joining())
         : str;
@@ -143,10 +143,10 @@ public class GcUtils {
    * @return kebabToCamel
    */
   public static String kebabToCamel(String str) {
-    return str.indexOf("-") != -1
-        ? str.substring(0, str.indexOf("-")) +
+    return str.indexOf(GcConst.DELI_HYPEN) != -1
+        ? str.substring(0, str.indexOf(GcConst.DELI_HYPEN)) +
             Arrays
-                .stream(str.substring(str.indexOf("-") + 1).split("-"))
+                .stream(str.substring(str.indexOf(GcConst.DELI_HYPEN) + 1).split(GcConst.DELI_HYPEN))
                 .map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
                 .collect(Collectors.joining())
         : str;
