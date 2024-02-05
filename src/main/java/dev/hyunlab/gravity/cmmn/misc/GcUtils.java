@@ -153,6 +153,21 @@ public class GcUtils {
   }
 
   /**
+   * 
+   * @param str kebab-to-camel
+   * @return kebabToCamel
+   */
+  public static String kebabToCamel(String str) {
+    return str.indexOf("-") != -1
+        ? str.substring(0, str.indexOf("-")) +
+            Arrays
+                .stream(str.substring(str.indexOf("-") + 1).split("-"))
+                .map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
+                .collect(Collectors.joining())
+        : str;
+  }
+
+  /**
    * 임시 디렉터리에 압축 파일 생성
    * 
    * @param srcPaths
