@@ -116,29 +116,6 @@ public class GcUtils {
 
   /**
    * 
-   * @param str camelToSnake
-   * @return camel_to_snake
-   */
-  public static String camelToSnake(String str) {
-    // Regular Expression
-    String regex = "([a-z])([A-Z]+)";
-
-    // Replacement string
-    String replacement = "$1_$2";
-
-    // Replace the given regex
-    // with replacement string
-    // and convert it to lower case.
-    str = str
-        .replaceAll(regex, replacement)
-        .toLowerCase();
-
-    // return string
-    return str;
-  }
-
-  /**
-   * 
    * @param str snake_to_camel
    * @return snakeToCamel
    */
@@ -150,6 +127,14 @@ public class GcUtils {
                 .map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
                 .collect(Collectors.joining())
         : str;
+  }
+
+  /**
+   * @param str camelToSnake
+   * @return camel_to_snake
+   */
+  public static String camelToSnake(String str) {
+    return str.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase();
   }
 
   /**
@@ -165,6 +150,15 @@ public class GcUtils {
                 .map(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1))
                 .collect(Collectors.joining())
         : str;
+  }
+
+  /**
+   * 
+   * @param str camelToKebab
+   * @return camel-to-kebab
+   */
+  public static String camelToKebab(String str) {
+    return str.replaceAll("([a-z0-9])([A-Z])", "$1-$2").toLowerCase();
   }
 
   /**
