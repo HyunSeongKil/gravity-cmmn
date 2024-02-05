@@ -153,6 +153,17 @@ public class GcUtils {
   }
 
   /**
+   * 현재 시각 문자열 생성(yyyyMMddHHmmss)
+   * 
+   * @return
+   */
+  public static String getYmdhms() {
+    return LocalDateTime
+        .now()
+        .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+  }
+
+  /**
    * 
    * @param str camelToKebab
    * @return camel-to-kebab
@@ -181,10 +192,7 @@ public class GcUtils {
    * @throws IOException
    */
   public static Path zip(List<Path> srcPaths, Path destPath) throws IOException {
-    String filename = srcPaths.size() +
-        "ea_" +
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) +
-        ".zip";
+    String filename = srcPaths.size() + "ea_" + getYmdhms() + ".zip";
 
     return zip(srcPaths, destPath, filename);
   }
