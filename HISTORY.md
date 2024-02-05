@@ -1,3 +1,7 @@
+## v1.24.0205
+
+- GcUtils.zipDirectory(Path, Path) 추가
+
 ## v1.24.0224
 
 - GcDbService, GcDbServiceImpl 추가
