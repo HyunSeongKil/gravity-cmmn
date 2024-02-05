@@ -3,6 +3,7 @@ package dev.hyunlab.gravity.cmmn.misc;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +19,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -84,7 +88,6 @@ public class GcUtils {
 
   /**
    * 짧은(uuid의 앞 8자리) uuid 생성
-   * ! 1st char는 항상 문자임
    * 
    * @return
    */
@@ -209,6 +212,42 @@ public class GcUtils {
     }
 
     return destPath.resolve(filename);
+  }
+
+  /**
+   * 압축 파일 생성. 디렉터리/파일 모두(하위 디렉터리/파일) 포함
+   * 
+   * @param zipFilePath 압축파일 경로(파일명 포함)
+   * @param srcPath     압축할 디렉터리
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  public static void zipDirectory(Path zipFilePath, Path srcPath) throws FileNotFoundException, IOException {
+    try (FileOutputStream fos = new FileOutputStream(zipFilePath.toString());
+        ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+      Files.walkFileTree(srcPath, new SimpleFileVisitor<Path>() {
+        @Override
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+          // it starts with the source folder so skipping that
+          if (!srcPath.equals(dir)) {
+            // System.out.println("DIR " + dir);
+            zos.putNextEntry(new ZipEntry(srcPath.relativize(dir).toString() + "/"));
+            zos.closeEntry();
+          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+          zos.putNextEntry(new ZipEntry(srcPath.relativize(file).toString()));
+          Files.copy(file, zos);
+          zos.closeEntry();
+          return FileVisitResult.CONTINUE;
+        }
+      });
+
+    }
   }
 
   /**
