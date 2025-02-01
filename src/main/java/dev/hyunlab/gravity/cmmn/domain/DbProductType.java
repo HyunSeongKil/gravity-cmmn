@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+@Deprecated(since = "2021-02-01", forRemoval = true)
 public enum DbProductType {
   Oracle("Oracle"), MySQL("MySQL"), MariaDB("MariaDB"), MSSQL("MSSQL"), PostgreSQL("PostgreSQL");
 
