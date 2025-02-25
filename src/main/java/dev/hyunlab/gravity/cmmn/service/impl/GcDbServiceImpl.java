@@ -16,6 +16,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import dev.hyunlab.gravity.cmmn.domain.DbType;
+import dev.hyunlab.gravity.cmmn.misc.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
 
@@ -80,9 +81,31 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
-    stmt.executeUpdate(
-        "ALTER TABLE %s DROP COLUMN %s ".formatted(tableName, columnName));
+  public boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
+    GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
+    switch (dbProductName) {
+      case MYSQL:
+      case MARIADB:
+        stmt.executeUpdate("ALTER TABLE %s DROP COLUMN IF EXISTS %s".formatted(tableName, columnName));
+        return true;
+
+      case ORACLE:
+        try (ResultSet rs = stmt
+            .executeQuery("SELECT COUNT(*) FROM all_tab_columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
+          rs.next();
+          if (rs.getInt(1) == 0) {
+            return false;
+          }
+
+          stmt.executeUpdate("ALTER TABLE %s DROP COLUMN %s".formatted(tableName, columnName));
+        }
+        return true;
+
+      default:
+        throw new RuntimeException("Not supported db product name " + dbProductName);
+    }
+
   }
 
   @Override
