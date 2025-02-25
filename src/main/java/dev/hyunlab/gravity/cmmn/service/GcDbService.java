@@ -23,7 +23,16 @@ public interface GcDbService {
 
   void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException;
 
-  void dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;
+  /**
+   * Drop column
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnName
+   * @return 성공시 true
+   * @throws SQLException
+   */
+  boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 
   void executeUpdate(Connection conn, String sql) throws SQLException;
 
