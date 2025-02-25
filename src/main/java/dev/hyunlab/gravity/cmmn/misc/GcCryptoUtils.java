@@ -24,7 +24,7 @@ public class GcCryptoUtils {
 
     /**
      * 비밀키
-     * key size : 16,24,32 bytes만 가능
+     * ! 중요 key size : 16,24,32 bytes만 가능
      */
     private final static String SECRET_KEY = "0123456789012345";
     /**
@@ -134,10 +134,8 @@ public class GcCryptoUtils {
 
             return new String((new Base64()).encode(encrypted));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
-
-        return null;
     }
 
     /**
@@ -183,10 +181,8 @@ public class GcCryptoUtils {
 
             return new String(original);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
-
-        return null;
     }
 
     /**
