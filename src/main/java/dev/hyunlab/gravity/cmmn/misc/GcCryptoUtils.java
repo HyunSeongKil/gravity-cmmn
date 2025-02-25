@@ -42,11 +42,12 @@ public class GcCryptoUtils {
         System.out.println(
                 "rda@123 : 5ece07bbc2bf53a6d3fff11df6ad5af602f16baa8d4d9e3053ab054374c4c82d7922885defdc40de35d321b62adfc0308ca43876390c579ed21400a89cc2e457");
 
-        String plainText = "abcd1234!@#$";
+        String plainText = "한글abcd1234!@#$";
         System.out.println(plainText);
         String a = GcCryptoUtils.encrypt(plainText);
-        System.out.println(a);
-        System.out.println(GcCryptoUtils.decrypt(a));
+        System.out.println("plainText: " + plainText);
+        System.out.println("\tenc: " + a);
+        System.out.println("\tdec: " + GcCryptoUtils.decrypt(a));
 
         // String plainText = "kihyun4477@nate.com";
         // String cipherText = CsCrypto.encrypt(plainText);
