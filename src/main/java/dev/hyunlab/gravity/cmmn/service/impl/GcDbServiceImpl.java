@@ -70,6 +70,33 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException {
+    GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
+    switch (dbProductName) {
+      case MYSQL:
+      case MARIADB:
+      case POSTGRESQL:
+        try (ResultSet rs = stmt.executeQuery(
+            "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
+          rs.next();
+          return rs.getInt(1) > 0;
+        }
+
+      case ORACLE:
+        try (ResultSet rs = stmt
+            .executeQuery("SELECT COUNT(*) FROM all_tab_columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
+          rs.next();
+          return rs.getInt(1) > 0;
+        }
+
+      default:
+        throw new RuntimeException("Not supported db product name " + dbProductName);
+    }
+  }
+
+  @Override
   public void dropTable(Statement stmt, String tableName) throws SQLException {
     stmt.executeUpdate("DROP TABLE " + tableName);
   }

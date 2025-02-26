@@ -19,6 +19,8 @@ public interface GcDbService {
 
   boolean existsTable(Statement stmt, String tableName) throws SQLException;
 
+  boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException;
+
   void dropTable(Statement stmt, String tableName) throws SQLException;
 
   /**
