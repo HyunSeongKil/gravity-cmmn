@@ -16,7 +16,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import dev.hyunlab.gravity.cmmn.domain.DbType;
-import dev.hyunlab.gravity.cmmn.misc.GcDatabaseProductNameEnum;
+import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
