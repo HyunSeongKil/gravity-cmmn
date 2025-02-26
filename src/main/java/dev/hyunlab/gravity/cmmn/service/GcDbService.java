@@ -74,6 +74,17 @@ public interface GcDbService {
    */
   boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 
+  /**
+   * Drop columns. batch 처리로 성능 향상
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnNames
+   * @return
+   * @throws SQLException
+   */
+  int[] dropColumns(Statement stmt, String tableName, List<String> columnNames) throws SQLException;
+
   void executeUpdate(Connection conn, String sql) throws SQLException;
 
   String createDatabaseUrl(DbType dbType, String ip, String port, String dbName);

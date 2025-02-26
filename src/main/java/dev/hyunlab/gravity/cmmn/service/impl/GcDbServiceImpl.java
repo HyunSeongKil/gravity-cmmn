@@ -195,6 +195,22 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public int[] dropColumns(Statement stmt, String tableName, List<String> columnNames) throws SQLException {
+    Set<String> columnNameSet = getColumnNames(stmt, tableName);
+
+    for (String columnName : columnNames) {
+      if (!columnNameSet.contains(columnName)) {
+        log.debug("Column not exists. tableName: {}, columnName: {}", tableName, columnName);
+        continue;
+      }
+
+      stmt.addBatch("ALTER TABLE %s DROP COLUMN %s".formatted(tableName, columnName));
+    }
+
+    return stmt.executeBatch();
+  }
+
+  @Override
   public boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
     if (!existsColumn(stmt, tableName, columnName)) {
       return false;
@@ -204,9 +220,6 @@ public class GcDbServiceImpl implements GcDbService {
     switch (dbProductName) {
       case MYSQL:
       case MARIADB:
-        stmt.executeUpdate("ALTER TABLE %s DROP COLUMN IF EXISTS %s".formatted(tableName, columnName));
-        break;
-
       case ORACLE:
         stmt.executeUpdate("ALTER TABLE %s DROP COLUMN %s".formatted(tableName, columnName));
         break;
