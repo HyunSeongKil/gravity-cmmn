@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dev.hyunlab.gravity.cmmn.domain.DbType;
+import dev.hyunlab.gravity.cmmn.misc.GcDatabaseProductNameEnum;
 
 public interface GcDbService {
   Connection createConnection(String url, String username, String plainPassword) throws SQLException;
@@ -93,6 +94,8 @@ public interface GcDbService {
   void executeUpdate(Connection conn, String sql) throws SQLException;
 
   String createDatabaseUrl(DbType dbType, String ip, String port, String dbName);
+
+  String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName);
 
   List<Map<String, Object>> getDatas(Connection conn, String sql) throws SQLException;
 

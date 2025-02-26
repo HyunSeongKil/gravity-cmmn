@@ -84,6 +84,26 @@ public class GcDbServiceImpl implements GcDbService {
   };
 
   @Override
+  public String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName) {
+    switch (dbProductName) {
+      case MYSQL:
+        return "jdbc:mysql://%s:%s/%s".formatted(ip, port, dbName);
+
+      case MARIADB:
+        return "jdbc:mariadb://%s:%s/%s".formatted(ip, port, dbName);
+
+      case POSTGRESQL:
+        return "jdbc:postgresql://%s:%s/%s".formatted(ip, port, dbName);
+
+      case ORACLE:
+        return "jdbc:oracle:thin:@%s:%s:%s".formatted(ip, port, dbName);
+
+      default:
+        throw new RuntimeException("Not supported db product name " + dbProductName);
+    }
+  };
+
+  @Override
   public boolean existsTable(Statement stmt, String tableName) throws SQLException {
     try {
       stmt.executeQuery("SELECT * FROM %s".formatted(tableName));
