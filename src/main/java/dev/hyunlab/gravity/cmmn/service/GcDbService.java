@@ -25,6 +25,7 @@ public interface GcDbService {
 
   /**
    * Create table. default dataType: varchar(255)
+   * 테이블에 미존재하는 컬럼만 추가
    * 
    * @param stmt
    * @param tableName
@@ -36,6 +37,7 @@ public interface GcDbService {
 
   /**
    * Create table
+   * 테이블에 미존재하는 컬럼만 추가
    * 
    * @param stmt
    * @param tableName
@@ -50,6 +52,7 @@ public interface GcDbService {
 
   /**
    * Add columns. batch 처리로 성능 향상
+   * 테이블에 미존재하는 컬럼만 추가
    * 
    * @param stmt
    * @param tableName
@@ -65,6 +68,7 @@ public interface GcDbService {
 
   /**
    * Drop column
+   * 테이블에 존재하는 컬럼만 삭제
    * 
    * @param stmt
    * @param tableName
@@ -76,6 +80,7 @@ public interface GcDbService {
 
   /**
    * Drop columns. batch 처리로 성능 향상
+   * 테이블에 존재하는 컬럼만 삭제
    * 
    * @param stmt
    * @param tableName
