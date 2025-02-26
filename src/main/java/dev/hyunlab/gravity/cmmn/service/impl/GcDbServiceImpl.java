@@ -202,9 +202,12 @@ public class GcDbServiceImpl implements GcDbService {
     switch (dbProductName) {
       case MySQL:
       case MariaDB:
-      case PostgreSQL:
         return List.of(
             "ALTER TABLE %s ADD COLUMN %s %s NULL COMMENT '%s'".formatted(tableName, columnName, dataType, comment));
+
+      case PostgreSQL:
+        return List.of("ALTER TABLE %s ADD COLUMN %s %s".formatted(tableName, columnName, dataType),
+            "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
 
       case Oracle:
         return List.of("ALTER TABLE %s ADD %s %s".formatted(tableName, columnName, dataType),
