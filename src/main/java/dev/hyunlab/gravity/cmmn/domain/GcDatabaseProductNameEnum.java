@@ -1,9 +1,13 @@
-package dev.hyunlab.gravity.cmmn.misc;
+package dev.hyunlab.gravity.cmmn.domain;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 
+/**
+ * 
+ */
 public enum GcDatabaseProductNameEnum {
   MySQL("MySQL"),
   MariaDB("MariaDB"),
@@ -26,7 +30,7 @@ public enum GcDatabaseProductNameEnum {
 
   public static GcDatabaseProductNameEnum fromName(String name) {
     for (GcDatabaseProductNameEnum e : GcDatabaseProductNameEnum.values()) {
-      if (e.getName().equals(name)) {
+      if (e.getName().equalsIgnoreCase(name)) {
         return e;
       }
     }
@@ -35,6 +39,10 @@ public enum GcDatabaseProductNameEnum {
 
   public static GcDatabaseProductNameEnum fromConnection(Connection connection) throws SQLException {
     return fromMetadata(connection.getMetaData());
+  }
+
+  public static GcDatabaseProductNameEnum fromStatement(Statement stmt) throws SQLException {
+    return fromConnection(stmt.getConnection());
   }
 
   public static GcDatabaseProductNameEnum fromMetadata(DatabaseMetaData metaData) throws SQLException {
