@@ -161,6 +161,7 @@ public class GcDbServiceImpl implements GcDbService {
   public boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
       throws SQLException {
     if (existsColumn(stmt, tableName, columnName)) {
+      log.debug("Column already exists. tableName: {}, columnName: {}", tableName, columnName);
       return false;
     }
 
@@ -213,6 +214,7 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
     if (!existsColumn(stmt, tableName, columnName)) {
+      log.debug("Column not exists. tableName: {}, columnName: {}", tableName, columnName);
       return false;
     }
 
