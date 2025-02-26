@@ -49,6 +49,21 @@ public interface GcDbService {
       throws SQLException;
 
   /**
+   * Add columns. batch 처리로 성능 향상
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnNames
+   * @param dataTypes
+   * @param comments
+   * @return
+   * @throws SQLException
+   */
+  int[] addColumns(Statement stmt, String tableName, List<String> columnNames, List<String> dataTypes,
+      List<String> comments)
+      throws SQLException;
+
+  /**
    * Drop column
    * 
    * @param stmt

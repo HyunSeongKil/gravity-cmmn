@@ -19,9 +19,11 @@ import dev.hyunlab.gravity.cmmn.domain.DbType;
 import dev.hyunlab.gravity.cmmn.misc.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GcDbServiceImpl implements GcDbService {
 
   @Override
@@ -124,6 +126,33 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public int[] addColumns(Statement stmt, String tableName, List<String> columnNames, List<String> dataTypes,
+      List<String> comments) throws SQLException {
+    if (columnNames.size() != dataTypes.size() || columnNames.size() != comments.size()) {
+      throw new RuntimeException("columnNames.size() != dataTypes.size() || columnNames.size() != comments.size()");
+    }
+
+    Set<String> columnNameSet = getColumnNames(stmt, tableName);
+
+    for (int i = 0; i < columnNames.size(); i++) {
+      if (columnNameSet.contains(columnNames.get(i))) {
+        log.debug("Column already exists. tableName: {}, columnName: {}", tableName, columnNames.get(i));
+        continue;
+      }
+
+      createAddColumnSqls(stmt, tableName, columnNames.get(i), dataTypes.get(i), comments.get(i)).forEach(sql -> {
+        try {
+          stmt.addBatch(sql);
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    }
+
+    return stmt.executeBatch();
+  }
+
+  @Override
   public boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
     return addColumn(stmt, tableName, columnName, "VARCHAR(255)", comment);
   }
@@ -135,25 +164,34 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
+    createAddColumnSqls(stmt, tableName, columnName, dataType, comment).forEach(sql -> {
+      try {
+        stmt.executeUpdate(sql);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    });
+
+    return true;
+  }
+
+  private List<String> createAddColumnSqls(Statement stmt, String tableName, String columnName, String dataType,
+      String comment) throws SQLException {
     GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
     switch (dbProductName) {
       case MYSQL:
       case MARIADB:
       case POSTGRESQL:
-        stmt.executeUpdate(
+        return List.of(
             "ALTER TABLE %s ADD COLUMN %s %s NULL COMMENT '%s'".formatted(tableName, columnName, dataType, comment));
-        break;
 
       case ORACLE:
-        stmt.executeUpdate("ALTER TABLE %s ADD %s %s".formatted(tableName, columnName, dataType));
-        stmt.executeUpdate("COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
-        break;
+        return List.of("ALTER TABLE %s ADD %s %s".formatted(tableName, columnName, dataType),
+            "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
 
       default:
         throw new RuntimeException("Not supported db product name " + dbProductName);
     }
-
-    return true;
   }
 
   @Override
