@@ -21,7 +21,30 @@ public interface GcDbService {
 
   void dropTable(Statement stmt, String tableName) throws SQLException;
 
-  void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException;
+  /**
+   * Create table. default dataType: varchar(255)
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columns
+   * @return 성공시 true
+   * @throws SQLException
+   */
+  boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException;
+
+  /**
+   * Create table
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnName
+   * @param dataType   varchar(255), int, date, ...
+   * @param comment
+   * @return 성공시 true
+   * @throws SQLException
+   */
+  boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
+      throws SQLException;
 
   /**
    * Drop column
