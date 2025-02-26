@@ -31,13 +31,35 @@ public class GcDbServiceImpl implements GcDbService {
 
   @Override
   public Set<String> getColumnNames(Statement stmt, String tableName) throws SQLException {
-    try (ResultSet rs = stmt.executeQuery("SELECT * FROM %s".formatted(tableName))) {
-      Set<String> list = new HashSet<>();
-      for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-        list.add(rs.getMetaData().getColumnName(i));
-      }
-      return list;
+    GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
+    switch (dbProductName) {
+      case MYSQL:
+      case MARIADB:
+      case POSTGRESQL:
+        try (ResultSet rs = stmt
+            .executeQuery(
+                "SELECT column_name FROM information_schema.columns WHERE table_name = '%s'".formatted(tableName))) {
+          Set<String> list = new HashSet<>();
+          while (rs.next()) {
+            list.add(rs.getString(1));
+          }
+          return list;
+        }
+
+      case ORACLE:
+        try (ResultSet rs = stmt
+            .executeQuery("SELECT column_name FROM all_tab_columns WHERE table_name = '%s'".formatted(tableName))) {
+          Set<String> list = new HashSet<>();
+          while (rs.next()) {
+            list.add(rs.getString(1));
+          }
+          return list;
+        }
+
+      default:
+        throw new RuntimeException("Not supported db product name " + dbProductName);
     }
+
   }
 
   @Override
