@@ -35,9 +35,9 @@ public class GcDbServiceImpl implements GcDbService {
   public Set<String> getColumnNames(Statement stmt, String tableName) throws SQLException {
     GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
     switch (dbProductName) {
-      case MYSQL:
-      case MARIADB:
-      case POSTGRESQL:
+      case MySQL:
+      case MariaDB:
+      case PostgreSQL:
         try (ResultSet rs = stmt
             .executeQuery(
                 "SELECT column_name FROM information_schema.columns WHERE table_name = '%s'".formatted(tableName))) {
@@ -48,7 +48,7 @@ public class GcDbServiceImpl implements GcDbService {
           return list;
         }
 
-      case ORACLE:
+      case Oracle:
         try (ResultSet rs = stmt
             .executeQuery("SELECT column_name FROM all_tab_columns WHERE table_name = '%s'".formatted(tableName))) {
           Set<String> list = new HashSet<>();
@@ -86,16 +86,16 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName) {
     switch (dbProductName) {
-      case MYSQL:
+      case MySQL:
         return "jdbc:mysql://%s:%s/%s".formatted(ip, port, dbName);
 
-      case MARIADB:
+      case MariaDB:
         return "jdbc:mariadb://%s:%s/%s".formatted(ip, port, dbName);
 
-      case POSTGRESQL:
+      case PostgreSQL:
         return "jdbc:postgresql://%s:%s/%s".formatted(ip, port, dbName);
 
-      case ORACLE:
+      case Oracle:
         return "jdbc:oracle:thin:@%s:%s:%s".formatted(ip, port, dbName);
 
       default:
@@ -117,9 +117,9 @@ public class GcDbServiceImpl implements GcDbService {
   public boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException {
     GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
     switch (dbProductName) {
-      case MYSQL:
-      case MARIADB:
-      case POSTGRESQL:
+      case MySQL:
+      case MariaDB:
+      case PostgreSQL:
         try (ResultSet rs = stmt.executeQuery(
             "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
                 .formatted(tableName, columnName))) {
@@ -127,7 +127,7 @@ public class GcDbServiceImpl implements GcDbService {
           return rs.getInt(1) > 0;
         }
 
-      case ORACLE:
+      case Oracle:
         try (ResultSet rs = stmt
             .executeQuery("SELECT COUNT(*) FROM all_tab_columns WHERE table_name = '%s' AND column_name = '%s'"
                 .formatted(tableName, columnName))) {
@@ -200,13 +200,13 @@ public class GcDbServiceImpl implements GcDbService {
       String comment) throws SQLException {
     GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
     switch (dbProductName) {
-      case MYSQL:
-      case MARIADB:
-      case POSTGRESQL:
+      case MySQL:
+      case MariaDB:
+      case PostgreSQL:
         return List.of(
             "ALTER TABLE %s ADD COLUMN %s %s NULL COMMENT '%s'".formatted(tableName, columnName, dataType, comment));
 
-      case ORACLE:
+      case Oracle:
         return List.of("ALTER TABLE %s ADD %s %s".formatted(tableName, columnName, dataType),
             "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
 
@@ -240,9 +240,9 @@ public class GcDbServiceImpl implements GcDbService {
 
     GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
     switch (dbProductName) {
-      case MYSQL:
-      case MARIADB:
-      case ORACLE:
+      case MySQL:
+      case MariaDB:
+      case Oracle:
         stmt.executeUpdate("ALTER TABLE %s DROP COLUMN %s".formatted(tableName, columnName));
         break;
 

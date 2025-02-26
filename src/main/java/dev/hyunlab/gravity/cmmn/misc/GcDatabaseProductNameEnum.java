@@ -5,13 +5,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 public enum GcDatabaseProductNameEnum {
-  MYSQL("MySQL"),
-  MARIADB("MariaDB"),
-  ORACLE("Oracle"),
-  MSSQL("Microsoft SQL Server"),
-  POSTGRESQL("PostgreSQL"),
+  MySQL("MySQL"),
+  MariaDB("MariaDB"),
+  Oracle("Oracle"),
+  PostgreSQL("PostgreSQL"),
   H2("H2"),
-  SQLITE("SQLite"),
+  SQLite("SQLite"),
+  MSSQL("Microsoft SQL Server"),
   OTHER("Other");
 
   private final String name;
