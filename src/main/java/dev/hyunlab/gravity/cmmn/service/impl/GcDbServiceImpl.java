@@ -75,9 +75,49 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
-    stmt.executeUpdate(
-        "ALTER TABLE %s ADD COLUMN %s VARCHAR(255) NULL COMMENT '%s'".formatted(tableName, columnName, comment));
+  public boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
+    return addColumn(stmt, tableName, columnName, "VARCHAR(255)", comment);
+  }
+
+  @Override
+  public boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
+      throws SQLException {
+    GcDatabaseProductNameEnum dbProductName = GcDatabaseProductNameEnum.fromConnection(stmt.getConnection());
+    switch (dbProductName) {
+      case MYSQL:
+      case MARIADB:
+        try (ResultSet rs = stmt.executeQuery(
+            "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
+          rs.next();
+          if (rs.getInt(1) > 0) {
+            return false;
+          }
+        }
+
+        stmt.executeUpdate(
+            "ALTER TABLE %s ADD COLUMN %s %s NULL COMMENT '%s'".formatted(tableName, columnName, dataType, comment));
+        return true;
+
+      case ORACLE:
+        try (ResultSet rs = stmt
+            .executeQuery("SELECT COUNT(*) FROM all_tab_columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
+          rs.next();
+          if (rs.getInt(1) > 0) {
+            return false;
+          }
+        }
+
+        stmt.executeUpdate("ALTER TABLE %s ADD %s %s".formatted(tableName, columnName, dataType));
+        stmt.executeUpdate("COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
+        break;
+
+      default:
+        throw new RuntimeException("Not supported db product name " + dbProductName);
+    }
+
+    return true;
   }
 
   @Override
