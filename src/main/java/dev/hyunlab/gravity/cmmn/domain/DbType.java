@@ -1,5 +1,11 @@
 package dev.hyunlab.gravity.cmmn.domain;
 
+/**
+ * @deprecated Use
+ *             {@link dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum}
+ *             instead
+ * @since 2025-02-26
+ */
 public enum DbType {
   MariaDB("MariaDB", "마리아디비"),
   Oracle("Oracle", "오라클"),
