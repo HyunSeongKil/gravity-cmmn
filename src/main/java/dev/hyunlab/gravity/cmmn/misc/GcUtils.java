@@ -164,6 +164,17 @@ public class GcUtils {
   }
 
   /**
+   * 현재 시각 문자열 생성(yyMMdd)
+   * 
+   * @return
+   */
+  public static String getYYMMDD() {
+    return LocalDateTime
+        .now()
+        .format(DateTimeFormatter.ofPattern("yyMMdd"));
+  }
+
+  /**
    * 
    * @param str camelToKebab
    * @return camel-to-kebab
