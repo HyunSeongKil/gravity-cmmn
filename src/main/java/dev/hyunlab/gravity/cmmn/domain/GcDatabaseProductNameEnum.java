@@ -7,7 +7,7 @@ import java.sql.Statement;
 /**
  * ! 중요. 추후 gravity-cmmn으로 이동 예정
  */
-public enum GcDatabaseProductNmEnum {
+public enum GcDatabaseProductNameEnum {
   MySQL("MySQL"),
   MariaDB("MariaDB"),
   Oracle("Oracle"),
@@ -16,7 +16,7 @@ public enum GcDatabaseProductNmEnum {
 
   private final String name;
 
-  GcDatabaseProductNmEnum(String name) {
+  GcDatabaseProductNameEnum(String name) {
     this.name = name;
   }
 
@@ -24,16 +24,16 @@ public enum GcDatabaseProductNmEnum {
     return name;
   }
 
-  public static GcDatabaseProductNmEnum of(Connection conn) throws SQLException {
+  public static GcDatabaseProductNameEnum of(Connection conn) throws SQLException {
     return of(conn.getMetaData().getDatabaseProductName());
   }
 
-  public static GcDatabaseProductNmEnum of(Statement stmt) throws SQLException {
+  public static GcDatabaseProductNameEnum of(Statement stmt) throws SQLException {
     return of(stmt.getConnection());
   }
 
-  public static GcDatabaseProductNmEnum of(String name) {
-    for (GcDatabaseProductNmEnum value : values()) {
+  public static GcDatabaseProductNameEnum of(String name) {
+    for (GcDatabaseProductNameEnum value : values()) {
       if (value.getName().equalsIgnoreCase(name)) {
         return value;
       }
@@ -42,7 +42,7 @@ public enum GcDatabaseProductNmEnum {
     return null;
   }
 
-  public static GcDatabaseProductNmEnum of(DbType dbType) {
+  public static GcDatabaseProductNameEnum of(DbType dbType) {
     return of(dbType.getName());
   }
 
