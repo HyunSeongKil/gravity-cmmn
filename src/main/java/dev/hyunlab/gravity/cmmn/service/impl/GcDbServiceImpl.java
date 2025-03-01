@@ -16,6 +16,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import dev.hyunlab.gravity.cmmn.domain.DbType;
+import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
 
@@ -50,12 +51,21 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public String createDatabaseUrl(DbType dbType, String ip, String port, String dbName) {
-    if (DbType.MariaDB.getCode().equals(dbType.getCode())) {
-      return "jdbc:mariadb://%s:%s/%s".formatted(ip, port, dbName);
-    }
+  public String createDatabaseUrl(GcDatabaseProductNameEnum databaseProductNameEnum, String ip, String port,
+      String dbName) {
+    switch (databaseProductNameEnum) {
+      case MySQL:
+        return "jdbc:mysql://%s:%s/%s".formatted(ip, port, dbName);
+      case MariaDB:
+        return "jdbc:mariadb://%s:%s/%s".formatted(ip, port, dbName);
+      case PostgreSQL:
+        return "jdbc:postgresql://%s:%s/%s".formatted(ip, port, dbName);
+      case Oracle:
+        return "jdbc:oracle:thin:@%s:%s:%s".formatted(ip, port, dbName);
 
-    throw new RuntimeException("Not supported db type " + dbType.getCode());
+      default:
+        throw new RuntimeException("Not supported db type " + databaseProductNameEnum);
+    }
   };
 
   @Override
@@ -77,6 +87,28 @@ public class GcDbServiceImpl implements GcDbService {
   public void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
     stmt.executeUpdate(
         "ALTER TABLE %s ADD COLUMN %s VARCHAR(255) NULL COMMENT '%s'".formatted(tableName, columnName, comment));
+  }
+
+  @Override
+  public void addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
+      throws SQLException {
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MySQL:
+      case MariaDB:
+        stmt.executeUpdate(
+            "ALTER TABLE %s ADD COLUMN %s %s NULL COMMENT '%s'".formatted(tableName, columnName, dataType, comment));
+        break;
+      case PostgreSQL:
+        stmt.executeUpdate("ALTER TABLE %s ADD COLUMN %s %s NULL".formatted(tableName, columnName, dataType));
+        stmt.executeUpdate("COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
+        break;
+      case Oracle:
+        stmt.executeUpdate("ALTER TABLE %s ADD %s %s NULL".formatted(tableName, columnName, dataType));
+        stmt.executeUpdate("COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
+        break;
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+    }
   }
 
   @Override
@@ -121,6 +153,36 @@ public class GcDbServiceImpl implements GcDbService {
     }
 
     return map;
+  }
+
+  @Override
+  public boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException {
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MySQL:
+      case MariaDB:
+        try (ResultSet rs = stmt.executeQuery(
+            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'".formatted(
+                tableName,
+                columnName))) {
+          return rs.next();
+        }
+      case PostgreSQL:
+        try (ResultSet rs = stmt.executeQuery(
+            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'".formatted(
+                tableName,
+                columnName))) {
+          return rs.next();
+        }
+      case Oracle:
+        try (ResultSet rs = stmt.executeQuery(
+            "SELECT * FROM user_tab_columns WHERE table_name = '%s' AND column_name = '%s'".formatted(tableName,
+                columnName))) {
+          return rs.next();
+        }
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+
+    }
   }
 
 }
