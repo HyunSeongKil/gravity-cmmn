@@ -118,6 +118,37 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public void changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName,
+      String newDataType, String newComment) throws SQLException {
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MySQL:
+      case MariaDB:
+        stmt.executeUpdate(
+            "ALTER TABLE %s CHANGE COLUMN %s %s %s NULL COMMENT '%s'"
+                .formatted(tableName, oldColumnName, newColumnName, newDataType, newComment));
+        break;
+      case PostgreSQL:
+        stmt.executeUpdate(
+            "ALTER TABLE %s RENAME COLUMN %s TO %s".formatted(tableName, oldColumnName, newColumnName));
+        stmt.executeUpdate(
+            "ALTER TABLE %s ALTER COLUMN %s TYPE %s".formatted(tableName, newColumnName, newDataType));
+        stmt.executeUpdate(
+            "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, newColumnName, newComment));
+        break;
+      case Oracle:
+        stmt.executeUpdate(
+            "ALTER TABLE %s RENAME COLUMN %s TO %s".formatted(tableName, oldColumnName, newColumnName));
+        stmt.executeUpdate(
+            "ALTER TABLE %s MODIFY %s %s".formatted(tableName, newColumnName, newDataType));
+        stmt.executeUpdate(
+            "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, newColumnName, newComment));
+        break;
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+    }
+  }
+
+  @Override
   public void executeUpdate(Connection conn, String sql) throws SQLException {
     try (Statement stmt = conn.createStatement()) {
       stmt.executeUpdate(sql);
