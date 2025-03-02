@@ -1,3 +1,7 @@
+## v1.25.0301
+
+- changeColumn() 추가
+
 ## v1.24.0205
 
 - GcUtils.zipDirectory(Path, Path) 추가
