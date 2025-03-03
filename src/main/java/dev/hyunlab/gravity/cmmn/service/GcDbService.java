@@ -32,9 +32,10 @@ public interface GcDbService {
    * @param stmt
    * @param srcTableName
    * @param destTableName
+   * @return
    * @throws SQLException
    */
-  void changeTableName(Statement stmt, String srcTableName, String destTableName) throws SQLException;
+  boolean changeTableName(Statement stmt, String srcTableName, String destTableName) throws SQLException;
 
   /**
    * srcTableName을 destTableName으로 변경하고 데이터를 복사한다.
