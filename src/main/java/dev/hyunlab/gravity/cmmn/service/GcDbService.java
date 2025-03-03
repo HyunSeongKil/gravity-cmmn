@@ -32,7 +32,7 @@ public interface GcDbService {
    * @param stmt
    * @param srcTableName
    * @param destTableName
-   * @return
+   * @return true: 성공, false: 실패
    * @throws SQLException
    */
   boolean changeTableName(Statement stmt, String srcTableName, String destTableName) throws SQLException;
