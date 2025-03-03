@@ -192,9 +192,14 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
-    stmt.executeUpdate(
-        "ALTER TABLE %s DROP COLUMN %s ".formatted(tableName, columnName));
+  public boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
+    if (!existsColumn(stmt, tableName, columnName)) {
+      log.warn("Column {} is not exists", columnName);
+      return false;
+    }
+
+    stmt.executeUpdate("ALTER TABLE %s DROP COLUMN %s ".formatted(tableName, columnName));
+    return true;
   }
 
   @Override
