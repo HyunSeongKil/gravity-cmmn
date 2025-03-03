@@ -123,7 +123,17 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void copyTableWithDatas(Statement stmt, String exstingTableName, String newTableName) throws SQLException {
+  public boolean copyTableWithDatas(Statement stmt, String exstingTableName, String newTableName) throws SQLException {
+    if (!existsTable(stmt, exstingTableName)) {
+      log.warn("Table {} is not exists", exstingTableName);
+      return false;
+    }
+
+    if (existsTable(stmt, newTableName)) {
+      log.warn("Table {} is already exists", newTableName);
+      return false;
+    }
+
     switch (GcDatabaseProductNameEnum.of(stmt)) {
       case MySQL:
       case MariaDB:
@@ -136,6 +146,8 @@ public class GcDbServiceImpl implements GcDbService {
       default:
         throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
     }
+
+    return true;
   }
 
   @Override

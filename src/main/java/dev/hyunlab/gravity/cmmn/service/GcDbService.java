@@ -43,9 +43,10 @@ public interface GcDbService {
    * @param stmt
    * @param srcTableName
    * @param destTableName
+   * @return true: 성공, false: 실패
    * @throws SQLException
    */
-  void copyTableWithDatas(Statement stmt, String srcTableName, String destTableName) throws SQLException;
+  boolean copyTableWithDatas(Statement stmt, String srcTableName, String destTableName) throws SQLException;
 
   boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 
