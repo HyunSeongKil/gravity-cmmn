@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GcDbServiceImpl implements GcDbService {
 
   @Override
@@ -85,8 +87,13 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void dropTable(Statement stmt, String tableName) throws SQLException {
-    stmt.executeUpdate("DROP TABLE " + tableName);
+  public boolean dropTable(Statement stmt, String tableName) throws SQLException {
+    if (!existsTable(stmt, tableName)) {
+      log.warn("Table {} is not exists", tableName);
+      return false;
+    }
+
+    return stmt.executeUpdate("DROP TABLE " + tableName) > 0;
   }
 
   @Override

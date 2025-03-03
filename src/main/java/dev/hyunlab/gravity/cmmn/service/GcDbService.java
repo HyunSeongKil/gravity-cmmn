@@ -17,7 +17,14 @@ public interface GcDbService {
 
   boolean existsTable(Statement stmt, String tableName) throws SQLException;
 
-  void dropTable(Statement stmt, String tableName) throws SQLException;
+  /**
+   * 
+   * @param stmt
+   * @param tableName
+   * @return true: 성공, false: 실패
+   * @throws SQLException
+   */
+  boolean dropTable(Statement stmt, String tableName) throws SQLException;
 
   /**
    * srcTableName을 destTableName으로 변경한다.
