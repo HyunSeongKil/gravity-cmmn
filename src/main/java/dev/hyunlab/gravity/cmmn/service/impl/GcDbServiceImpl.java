@@ -296,22 +296,20 @@ public class GcDbServiceImpl implements GcDbService {
       case MySQL:
       case MariaDB:
         try (ResultSet rs = stmt.executeQuery(
-            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'".formatted(
-                tableName,
-                columnName))) {
+            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
           return rs.next();
         }
       case PostgreSQL:
         try (ResultSet rs = stmt.executeQuery(
-            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'".formatted(
-                tableName,
-                columnName))) {
+            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
           return rs.next();
         }
       case Oracle:
         try (ResultSet rs = stmt.executeQuery(
-            "SELECT * FROM user_tab_columns WHERE table_name = '%s' AND column_name = '%s'".formatted(tableName,
-                columnName))) {
+            "SELECT * FROM user_tab_columns WHERE table_name = '%s' AND column_name = '%s'"
+                .formatted(tableName, columnName))) {
           return rs.next();
         }
       default:

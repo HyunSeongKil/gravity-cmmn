@@ -21,7 +21,7 @@ public interface GcDbService {
    * 
    * @param stmt
    * @param tableName
-   * @return true: 성공, false: 실패
+   * @return true: 성공, false: tableName 미 존재시
    * @throws SQLException
    */
   boolean dropTable(Statement stmt, String tableName) throws SQLException;
@@ -32,7 +32,7 @@ public interface GcDbService {
    * @param stmt
    * @param srcTableName
    * @param destTableName
-   * @return true: 성공, false: 실패
+   * @return true: 성공, false: srcTableName 미 존재시 or destTableName 존재시
    * @throws SQLException
    */
   boolean changeTableName(Statement stmt, String srcTableName, String destTableName) throws SQLException;
@@ -43,7 +43,7 @@ public interface GcDbService {
    * @param stmt
    * @param srcTableName
    * @param destTableName
-   * @return true: 성공, false: 실패
+   * @return true: 성공, false: srcTableName 미 존재시 or destTableName 존재시
    * @throws SQLException
    */
   boolean copyTableWithDatas(Statement stmt, String srcTableName, String destTableName) throws SQLException;
@@ -54,13 +54,51 @@ public interface GcDbService {
 
   Set<String> getColumnNames(ResultSetMetaData rsmd) throws SQLException;
 
+  /**
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnName
+   * @param comment
+   * @return true: 성공, false: columnName 존재시
+   * @throws SQLException
+   */
   boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException;
 
+  /**
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnName
+   * @param dataType
+   * @param comment
+   * @return true: 성공, false: columnName 존재시
+   * @throws SQLException
+   */
   boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
       throws SQLException;
 
+  /**
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnName
+   * @return true: 성공, false: columnName 미 존재시
+   * @throws SQLException
+   */
   boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 
+  /**
+   * 
+   * @param stmt
+   * @param tableName
+   * @param oldColumnName
+   * @param newColumnName
+   * @param newDataType
+   * @param newComment
+   * @return true: 성공, false: oldColumnName 미 존재시 or newColumnName 존재시
+   * @throws SQLException
+   */
   boolean changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName, String newDataType,
       String newComment) throws SQLException;
 
@@ -70,8 +108,22 @@ public interface GcDbService {
 
   boolean existsData(Statement stmt, String tableName) throws SQLException;
 
+  /**
+   * @see getDatas(Statement,String)
+   * @param conn
+   * @param sql
+   * @return
+   * @throws SQLException
+   */
   List<Map<String, Object>> getDatas(Connection conn, String sql) throws SQLException;
 
+  /**
+   * 
+   * @param stmt
+   * @param sql
+   * @return List<Map<String, Object>> key: columnName, value: data
+   * @throws SQLException
+   */
   List<Map<String, Object>> getDatas(Statement stmt, String sql) throws SQLException;
 
 }
