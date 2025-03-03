@@ -18,7 +18,25 @@ public interface GcDbService {
 
   void dropTable(Statement stmt, String tableName) throws SQLException;
 
-  void changeTableName(Statement stmt, String oldTableName, String newTableName) throws SQLException;
+  /**
+   * srcTableName을 destTableName으로 변경한다.
+   * 
+   * @param stmt
+   * @param srcTableName
+   * @param destTableName
+   * @throws SQLException
+   */
+  void changeTableName(Statement stmt, String srcTableName, String destTableName) throws SQLException;
+
+  /**
+   * srcTableName을 destTableName으로 변경하고 데이터를 복사한다.
+   * 
+   * @param stmt
+   * @param srcTableName
+   * @param destTableName
+   * @throws SQLException
+   */
+  void copyTableWithDatas(Statement stmt, String srcTableName, String destTableName) throws SQLException;
 
   boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 

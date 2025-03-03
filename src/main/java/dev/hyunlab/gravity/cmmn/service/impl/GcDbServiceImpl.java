@@ -99,6 +99,22 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public void copyTableWithDatas(Statement stmt, String exstingTableName, String newTableName) throws SQLException {
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MySQL:
+      case MariaDB:
+      case Oracle:
+        stmt.executeUpdate("CREATE TABLE %s AS SELECT * FROM %s".formatted(newTableName, exstingTableName));
+        break;
+      case PostgreSQL:
+        stmt.executeUpdate("CREATE TABLE %s AS TABLE %s".formatted(newTableName, exstingTableName));
+        break;
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+    }
+  }
+
+  @Override
   public void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
     stmt.executeUpdate(
         "ALTER TABLE %s ADD COLUMN %s VARCHAR(255) NULL COMMENT '%s'".formatted(tableName, columnName, comment));
