@@ -203,8 +203,18 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName,
+  public boolean changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName,
       String newDataType, String newComment) throws SQLException {
+    if (!existsColumn(stmt, tableName, oldColumnName)) {
+      log.warn("Column {} is not exists", oldColumnName);
+      return false;
+    }
+
+    if (existsColumn(stmt, tableName, newColumnName)) {
+      log.warn("Column {} is already exists", newColumnName);
+      return false;
+    }
+
     switch (GcDatabaseProductNameEnum.of(stmt)) {
       case MySQL:
       case MariaDB:
@@ -231,6 +241,8 @@ public class GcDbServiceImpl implements GcDbService {
       default:
         throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
     }
+
+    return true;
   }
 
   @Override

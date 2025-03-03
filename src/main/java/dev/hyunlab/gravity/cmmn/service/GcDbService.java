@@ -61,7 +61,7 @@ public interface GcDbService {
 
   boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 
-  void changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName, String newDataType,
+  boolean changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName, String newDataType,
       String newComment) throws SQLException;
 
   void executeUpdate(Connection conn, String sql) throws SQLException;
