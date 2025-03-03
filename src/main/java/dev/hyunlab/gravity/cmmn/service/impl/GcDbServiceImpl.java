@@ -84,6 +84,21 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public void changeTableName(Statement stmt, String oldTableName, String newTableName) throws SQLException {
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MySQL:
+      case MariaDB:
+      case PostgreSQL:
+      case Oracle:
+        stmt.executeUpdate("ALTER TABLE %s RENAME TO %s".formatted(oldTableName, newTableName));
+        break;
+
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+    }
+  }
+
+  @Override
   public void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
     stmt.executeUpdate(
         "ALTER TABLE %s ADD COLUMN %s VARCHAR(255) NULL COMMENT '%s'".formatted(tableName, columnName, comment));

@@ -18,6 +18,8 @@ public interface GcDbService {
 
   void dropTable(Statement stmt, String tableName) throws SQLException;
 
+  void changeTableName(Statement stmt, String oldTableName, String newTableName) throws SQLException;
+
   boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException;
 
   Set<String> getColumnNames(Statement stmt, String tableName) throws SQLException;
