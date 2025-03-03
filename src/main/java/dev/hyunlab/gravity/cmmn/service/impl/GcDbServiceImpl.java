@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import dev.hyunlab.gravity.cmmn.domain.DbType;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,13 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public Connection createConnection(String url, String username, String plainPassword) throws SQLException {
     return DriverManager.getConnection(url, username, plainPassword);
+  }
+
+  @Override
+  public boolean canConnection(String url, String username, String plainPassword) throws SQLException {
+    try (Connection conn = createConnection(url, username, plainPassword)) {
+      return conn.isValid(1);
+    }
   }
 
   @Override

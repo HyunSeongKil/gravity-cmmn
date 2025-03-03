@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import dev.hyunlab.gravity.cmmn.domain.DbType;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 
 public interface GcDbService {
   Connection createConnection(String url, String username, String plainPassword) throws SQLException;
+
+  boolean canConnection(String url, String username, String plainPassword) throws SQLException;
 
   boolean existsTable(Statement stmt, String tableName) throws SQLException;
 
