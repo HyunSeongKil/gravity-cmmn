@@ -54,9 +54,9 @@ public interface GcDbService {
 
   Set<String> getColumnNames(ResultSetMetaData rsmd) throws SQLException;
 
-  void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException;
+  boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException;
 
-  void addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
+  boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
       throws SQLException;
 
   void dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;

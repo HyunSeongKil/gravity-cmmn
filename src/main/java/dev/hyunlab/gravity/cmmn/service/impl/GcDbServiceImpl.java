@@ -151,14 +151,25 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
+  public boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
+    if (existsColumn(stmt, tableName, columnName)) {
+      log.warn("Column {} is already exists", columnName);
+      return false;
+    }
+
     stmt.executeUpdate(
         "ALTER TABLE %s ADD COLUMN %s VARCHAR(255) NULL COMMENT '%s'".formatted(tableName, columnName, comment));
+    return true;
   }
 
   @Override
-  public void addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
+  public boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
       throws SQLException {
+    if (existsColumn(stmt, tableName, columnName)) {
+      log.warn("Column {} is already exists", columnName);
+      return false;
+    }
+
     switch (GcDatabaseProductNameEnum.of(stmt)) {
       case MySQL:
       case MariaDB:
@@ -176,6 +187,8 @@ public class GcDbServiceImpl implements GcDbService {
       default:
         throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
     }
+
+    return true;
   }
 
   @Override
