@@ -187,6 +187,13 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public boolean existsData(Statement stmt, String tableName) throws SQLException {
+    try (ResultSet rs = stmt.executeQuery("SELECT * FROM %s".formatted(tableName))) {
+      return rs.next();
+    }
+  }
+
+  @Override
   public List<Map<String, Object>> getDatas(Connection conn, String sql) throws SQLException {
     return getDatas(conn.createStatement(), sql);
   }

@@ -58,6 +58,8 @@ public interface GcDbService {
 
   String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName);
 
+  boolean existsData(Statement stmt, String tableName) throws SQLException;
+
   List<Map<String, Object>> getDatas(Connection conn, String sql) throws SQLException;
 
   List<Map<String, Object>> getDatas(Statement stmt, String sql) throws SQLException;
