@@ -254,6 +254,11 @@ public class GcDbServiceImpl implements GcDbService {
 
   @Override
   public boolean existsData(Statement stmt, String tableName) throws SQLException {
+    if (!existsTable(stmt, tableName)) {
+      log.warn("Table {} is not exists", tableName);
+      return false;
+    }
+
     try (ResultSet rs = stmt.executeQuery("SELECT * FROM %s".formatted(tableName))) {
       return rs.next();
     }

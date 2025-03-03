@@ -106,6 +106,13 @@ public interface GcDbService {
 
   String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName);
 
+  /**
+   * 
+   * @param stmt
+   * @param tableName
+   * @return true: 성공, false: tableName 미존재 or 데이터 미존재
+   * @throws SQLException
+   */
   boolean existsData(Statement stmt, String tableName) throws SQLException;
 
   /**
