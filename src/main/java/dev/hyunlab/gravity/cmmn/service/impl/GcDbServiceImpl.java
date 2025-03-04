@@ -279,7 +279,9 @@ public class GcDbServiceImpl implements GcDbService {
       while (rs.next()) {
         datas.add(createDataMap(rs, columnNames));
       }
-
+    } catch (Exception e) {
+      log.error("{}", e);
+      throw e;
     }
 
     return datas;
