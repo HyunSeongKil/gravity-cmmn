@@ -10,7 +10,7 @@ public class GcIdGenerator implements IdentifierGenerator {
 
   @Override
   public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
-    return GcUtils.uuid12();
+    return GcUtils.getYYMMDD() + GcUtils.uuid8();
   }
 
 }
