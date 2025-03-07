@@ -8,12 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dev.hyunlab.gravity.cmmn.domain.GcColumnMetaDto;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 
 public interface GcDbService {
+  String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName);
+
   Connection createConnection(String url, String username, String plainPassword) throws SQLException;
 
   boolean canConnection(String url, String username, String plainPassword) throws SQLException;
+
+  void executeUpdate(Connection conn, String sql) throws SQLException;
 
   boolean existsTable(Statement stmt, String tableName) throws SQLException;
 
@@ -27,15 +32,36 @@ public interface GcDbService {
   boolean dropTable(Statement stmt, String tableName) throws SQLException;
 
   /**
+   * batch 처리
+   * 
+   * @param stmt
+   * @param tableNames
+   * @return
+   * @throws SQLException
+   */
+  boolean dropTables(Statement stmt, List<String> tableNames) throws SQLException;
+
+  /**
    * srcTableName을 destTableName으로 변경한다.
    * 
    * @param stmt
-   * @param srcTableName
-   * @param destTableName
+   * @param oldTableName
+   * @param newTableName
    * @return true: 성공, false: srcTableName 미 존재시 or destTableName 존재시
    * @throws SQLException
    */
-  boolean changeTableName(Statement stmt, String srcTableName, String destTableName) throws SQLException;
+  boolean changeTableName(Statement stmt, String oldTableName, String newTableName) throws SQLException;
+
+  /**
+   * batch 처리
+   * 
+   * @param stmt
+   * @param oldTableNames
+   * @param newTableNames
+   * @return
+   * @throws SQLException
+   */
+  boolean changeTablesNames(Statement stmt, List<String> oldTableNames, List<String> newTableNames) throws SQLException;
 
   /**
    * srcTableName을 destTableName으로 변경하고 데이터를 복사한다.
@@ -79,6 +105,17 @@ public interface GcDbService {
       throws SQLException;
 
   /**
+   * batch 처리
+   * 
+   * @param stmt
+   * @param tableNames
+   * @param columnMetaDtos
+   * @return
+   * @throws SQLException
+   */
+  boolean addColumns(Statement stmt, List<String> tableNames, List<GcColumnMetaDto> columnMetaDtos) throws SQLException;
+
+  /**
    * 
    * @param stmt
    * @param tableName
@@ -87,6 +124,17 @@ public interface GcDbService {
    * @throws SQLException
    */
   boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException;
+
+  /**
+   * batch 처리
+   * 
+   * @param stmt
+   * @param tableNames
+   * @param columnNames
+   * @return
+   * @throws SQLException
+   */
+  boolean dropColumns(Statement stmt, List<String> tableNames, List<String> columnNames) throws SQLException;
 
   /**
    * 
@@ -102,9 +150,18 @@ public interface GcDbService {
   boolean changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName, String newDataType,
       String newComment) throws SQLException;
 
-  void executeUpdate(Connection conn, String sql) throws SQLException;
-
-  String createDatabaseUrl(GcDatabaseProductNameEnum dbProductName, String ip, String port, String dbName);
+  /**
+   * batch 처리
+   * 
+   * @param stmt
+   * @param tableName
+   * @param oldColumnNames
+   * @param columnMetaDtos
+   * @return
+   * @throws SQLException
+   */
+  boolean changeColumns(Statement stmt, List<String> tableName, List<String> oldColumnNames,
+      List<GcColumnMetaDto> columnMetaDtos) throws SQLException;
 
   /**
    * 
