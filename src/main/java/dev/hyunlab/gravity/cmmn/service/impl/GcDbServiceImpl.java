@@ -94,7 +94,9 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    return stmt.executeUpdate("DROP TABLE " + tableName) > 0;
+    stmt.executeUpdate("DROP TABLE " + tableName);
+
+    return true;
   }
 
   @Override
@@ -154,7 +156,7 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public boolean addColumn(Statement stmt, String tableName, String columnName, String comment) throws SQLException {
     if (existsColumn(stmt, tableName, columnName)) {
-      log.warn("Column {} is already exists", columnName);
+      log.warn("Column {}.{} is already exists", tableName, columnName);
       return false;
     }
 
@@ -167,7 +169,7 @@ public class GcDbServiceImpl implements GcDbService {
   public boolean addColumn(Statement stmt, String tableName, String columnName, String dataType, String comment)
       throws SQLException {
     if (existsColumn(stmt, tableName, columnName)) {
-      log.warn("Column {} is already exists", columnName);
+      log.warn("Column {}.{} is already exists", tableName, columnName);
       return false;
     }
 
@@ -195,7 +197,7 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public boolean dropColumn(Statement stmt, String tableName, String columnName) throws SQLException {
     if (!existsColumn(stmt, tableName, columnName)) {
-      log.warn("Column {} is not exists", columnName);
+      log.warn("Column {}.{} is not exists", tableName, columnName);
       return false;
     }
 
@@ -207,12 +209,12 @@ public class GcDbServiceImpl implements GcDbService {
   public boolean changeColumn(Statement stmt, String tableName, String oldColumnName, String newColumnName,
       String newDataType, String newComment) throws SQLException {
     if (!existsColumn(stmt, tableName, oldColumnName)) {
-      log.warn("Column {} is not exists", oldColumnName);
+      log.warn("Column {}.{} is not exists", tableName, oldColumnName);
       return false;
     }
 
     if (existsColumn(stmt, tableName, newColumnName)) {
-      log.warn("Column {} is already exists", newColumnName);
+      log.warn("Column {}.{} is already exists", tableName, newColumnName);
       return false;
     }
 
@@ -516,6 +518,39 @@ public class GcDbServiceImpl implements GcDbService {
     }
 
     stmt.executeBatch();
+
+    return true;
+  }
+
+  public boolean createTable(Statement stmt, String tableName, List<GcColumnMetaDto> columnMetaDtos)
+      throws SQLException {
+    String sql = "";
+
+    if (existsTable(stmt, tableName)) {
+      log.warn("Table {} is already exists", tableName);
+      return false;
+    }
+
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MariaDB:
+      case MySQL:
+        List<String> columns = columnMetaDtos
+            .stream()
+            .map(dto -> {
+              return " `%s` %s %s COMMENT '%s'"
+                  .formatted(dto.getColumnName(), dto.getDataType(), dto.isPrimaryKey() ? "primary key" : "",
+                      dto.getColumnComment());
+            })
+            .toList();
+
+        sql = " CREATE TABLE %s ( %s ) COMMENT ''".formatted(tableName, String.join(",", columns));
+        break;
+
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+    }
+
+    stmt.executeUpdate(sql);
 
     return true;
   }

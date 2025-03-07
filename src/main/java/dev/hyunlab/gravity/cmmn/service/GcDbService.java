@@ -20,6 +20,17 @@ public interface GcDbService {
 
   void executeUpdate(Connection conn, String sql) throws SQLException;
 
+  /**
+   * ! 주의. 현재 mysql,mariadb만 지원
+   * 
+   * @param stmt
+   * @param tableName
+   * @param columnMetaDtos dataType에 크기까지 존재해야 함(임시). 예) varchar(100)
+   * @return
+   * @throws SQLException
+   */
+  boolean createTable(Statement stmt, String tableName, List<GcColumnMetaDto> columnMetaDtos) throws SQLException;
+
   boolean existsTable(Statement stmt, String tableName) throws SQLException;
 
   /**
