@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import dev.hyunlab.gravity.cmmn.domain.GcColumnMetaDto;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
@@ -323,6 +324,40 @@ public class GcDbServiceImpl implements GcDbService {
         throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
 
     }
+  }
+
+  @Override
+  public boolean createTable(Statement stmt, String tableName, List<GcColumnMetaDto> columnMetaDtos)
+      throws SQLException {
+    String sql = "";
+
+    if (existsTable(stmt, tableName)) {
+      log.warn("Table {} is already exists", tableName);
+      return false;
+    }
+
+    switch (GcDatabaseProductNameEnum.of(stmt)) {
+      case MariaDB:
+      case MySQL:
+        List<String> columns = columnMetaDtos
+            .stream()
+            .map(dto -> {
+              return " `%s` %s %s COMMENT '%s'"
+                  .formatted(dto.getColumnName(), dto.getDataType(), dto.isPrimaryKey() ? "primary key" : "",
+                      dto.getColumnComment());
+            })
+            .toList();
+
+        sql = " CREATE TABLE %s ( %s ) COMMENT ''".formatted(tableName, String.join(",", columns));
+        break;
+
+      default:
+        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
+    }
+
+    stmt.executeUpdate(sql);
+
+    return true;
   }
 
 }
