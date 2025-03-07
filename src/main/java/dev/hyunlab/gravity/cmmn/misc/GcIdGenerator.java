@@ -10,7 +10,8 @@ public class GcIdGenerator implements IdentifierGenerator {
 
   @Override
   public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
-    return GcUtils.getYYMMDD() + GcUtils.uuid8();
+    // 문자로 시작하게 만들기
+    return "x" + GcUtils.getYYMMDD() + GcUtils.uuid8();
   }
 
 }
