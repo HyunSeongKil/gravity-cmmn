@@ -9,7 +9,7 @@ import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SqlHelper {
+public class GcSqlHelper {
 
   public static String createExistsColumnSql(GcDatabaseProductNameEnum dbNameEnum, String tableName,
       String columnName) {

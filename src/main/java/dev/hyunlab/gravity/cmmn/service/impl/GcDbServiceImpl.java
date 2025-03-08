@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import dev.hyunlab.gravity.cmmn.domain.GcColumnMetaDto;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
-import dev.hyunlab.gravity.cmmn.misc.SqlHelper;
+import dev.hyunlab.gravity.cmmn.misc.GcSqlHelper;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +95,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createDropTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName);
+    List<String> sqls = GcSqlHelper.createDropTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName);
 
     executeBatch(stmt, sqls);
 
@@ -114,7 +114,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createChangeTableNameSqls(GcDatabaseProductNameEnum.of(stmt), oldTableName,
+    List<String> sqls = GcSqlHelper.createChangeTableNameSqls(GcDatabaseProductNameEnum.of(stmt), oldTableName,
         newTableName);
 
     executeBatch(stmt, sqls);
@@ -134,7 +134,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createCopyTableWithDatasSqls(GcDatabaseProductNameEnum.of(stmt), exstingTableName,
+    List<String> sqls = GcSqlHelper.createCopyTableWithDatasSqls(GcDatabaseProductNameEnum.of(stmt), exstingTableName,
         newTableName);
 
     executeBatch(stmt, sqls);
@@ -149,7 +149,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt),
+    List<String> sqls = GcSqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt),
         tableName,
         GcColumnMetaDto
             .builder()
@@ -170,7 +170,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt),
+    List<String> sqls = GcSqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt),
         tableName,
         GcColumnMetaDto
             .builder()
@@ -191,7 +191,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createDropColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnName);
+    List<String> sqls = GcSqlHelper.createDropColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnName);
     executeBatch(stmt, sqls);
 
     return true;
@@ -210,7 +210,7 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createChangeColumnSqls(GcDatabaseProductNameEnum.of(stmt),
+    List<String> sqls = GcSqlHelper.createChangeColumnSqls(GcDatabaseProductNameEnum.of(stmt),
         tableName,
         oldColumnName,
         GcColumnMetaDto
@@ -288,7 +288,7 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException {
     try (ResultSet rs = stmt.executeQuery(
-        SqlHelper.createExistsColumnSql(GcDatabaseProductNameEnum.of(stmt), tableName, columnName))) {
+        GcSqlHelper.createExistsColumnSql(GcDatabaseProductNameEnum.of(stmt), tableName, columnName))) {
       return rs.next();
     }
   }
@@ -304,7 +304,7 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      sqls.addAll(SqlHelper.createDropTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName));
+      sqls.addAll(GcSqlHelper.createDropTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName));
     }
 
     executeBatch(stmt, sqls);
@@ -332,7 +332,8 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      sqls.addAll(SqlHelper.createChangeTableNameSqls(GcDatabaseProductNameEnum.of(stmt), oldTableName, newTableName));
+      sqls.addAll(
+          GcSqlHelper.createChangeTableNameSqls(GcDatabaseProductNameEnum.of(stmt), oldTableName, newTableName));
     }
 
     executeBatch(stmt, sqls);
@@ -358,7 +359,7 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      sqls.addAll(SqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnMetaDto));
+      sqls.addAll(GcSqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnMetaDto));
     }
 
     executeBatch(stmt, sqls);
@@ -383,7 +384,7 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      sqls.addAll(SqlHelper.createDropColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnName));
+      sqls.addAll(GcSqlHelper.createDropColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnName));
     }
 
     executeBatch(stmt, sqls);
@@ -415,7 +416,7 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      sqls.addAll(SqlHelper.createChangeColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, oldColumnName,
+      sqls.addAll(GcSqlHelper.createChangeColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, oldColumnName,
           columnMetaDto));
     }
 
@@ -432,7 +433,8 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    List<String> sqls = SqlHelper.createCreateTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnMetaDtos);
+    List<String> sqls = GcSqlHelper.createCreateTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName,
+        columnMetaDtos);
     executeBatch(stmt, sqls);
 
     return true;
