@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import dev.hyunlab.gravity.cmmn.domain.GcColumnMetaDto;
 import dev.hyunlab.gravity.cmmn.domain.GcDatabaseProductNameEnum;
+import dev.hyunlab.gravity.cmmn.misc.SqlHelper;
 import dev.hyunlab.gravity.cmmn.service.GcDbService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +95,9 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    stmt.executeUpdate("DROP TABLE " + tableName);
+    List<String> sqls = SqlHelper.createDropTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName);
+
+    executeBatch(stmt, sqls);
 
     return true;
   }
@@ -111,18 +114,12 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    switch (GcDatabaseProductNameEnum.of(stmt)) {
-      case MySQL:
-      case MariaDB:
-      case PostgreSQL:
-      case Oracle:
-        stmt.executeUpdate("ALTER TABLE %s RENAME TO %s".formatted(oldTableName, newTableName));
-        return true;
+    List<String> sqls = SqlHelper.createChangeTableNameSqls(GcDatabaseProductNameEnum.of(stmt), oldTableName,
+        newTableName);
 
-      default:
-        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-    }
+    executeBatch(stmt, sqls);
 
+    return true;
   }
 
   @Override
@@ -137,18 +134,10 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    switch (GcDatabaseProductNameEnum.of(stmt)) {
-      case MySQL:
-      case MariaDB:
-      case Oracle:
-        stmt.executeUpdate("CREATE TABLE %s AS SELECT * FROM %s".formatted(newTableName, exstingTableName));
-        break;
-      case PostgreSQL:
-        stmt.executeUpdate("CREATE TABLE %s AS TABLE %s".formatted(newTableName, exstingTableName));
-        break;
-      default:
-        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-    }
+    List<String> sqls = SqlHelper.createCopyTableWithDatasSqls(GcDatabaseProductNameEnum.of(stmt), exstingTableName,
+        newTableName);
+
+    executeBatch(stmt, sqls);
 
     return true;
   }
@@ -160,8 +149,16 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    stmt.executeUpdate(
-        "ALTER TABLE %s ADD COLUMN %s VARCHAR(255) NULL COMMENT '%s'".formatted(tableName, columnName, comment));
+    List<String> sqls = SqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt),
+        tableName,
+        GcColumnMetaDto
+            .builder()
+            .columnName(columnName)
+            .columnComment(comment)
+            .build());
+
+    executeBatch(stmt, sqls);
+
     return true;
   }
 
@@ -173,23 +170,16 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    switch (GcDatabaseProductNameEnum.of(stmt)) {
-      case MySQL:
-      case MariaDB:
-        stmt.executeUpdate(
-            "ALTER TABLE %s ADD COLUMN %s %s NULL COMMENT '%s'".formatted(tableName, columnName, dataType, comment));
-        break;
-      case PostgreSQL:
-        stmt.executeUpdate("ALTER TABLE %s ADD COLUMN %s %s NULL".formatted(tableName, columnName, dataType));
-        stmt.executeUpdate("COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
-        break;
-      case Oracle:
-        stmt.executeUpdate("ALTER TABLE %s ADD %s %s NULL".formatted(tableName, columnName, dataType));
-        stmt.executeUpdate("COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, columnName, comment));
-        break;
-      default:
-        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-    }
+    List<String> sqls = SqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt),
+        tableName,
+        GcColumnMetaDto
+            .builder()
+            .columnName(columnName)
+            .dataType(dataType)
+            .columnComment(comment)
+            .build());
+
+    executeBatch(stmt, sqls);
 
     return true;
   }
@@ -201,7 +191,9 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    stmt.executeUpdate("ALTER TABLE %s DROP COLUMN %s ".formatted(tableName, columnName));
+    List<String> sqls = SqlHelper.createDropColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnName);
+    executeBatch(stmt, sqls);
+
     return true;
   }
 
@@ -218,32 +210,16 @@ public class GcDbServiceImpl implements GcDbService {
       return false;
     }
 
-    switch (GcDatabaseProductNameEnum.of(stmt)) {
-      case MySQL:
-      case MariaDB:
-        stmt.executeUpdate(
-            "ALTER TABLE %s CHANGE COLUMN %s %s %s NULL COMMENT '%s'"
-                .formatted(tableName, oldColumnName, newColumnName, newDataType, newComment));
-        break;
-      case PostgreSQL:
-        stmt.executeUpdate(
-            "ALTER TABLE %s RENAME COLUMN %s TO %s".formatted(tableName, oldColumnName, newColumnName));
-        stmt.executeUpdate(
-            "ALTER TABLE %s ALTER COLUMN %s TYPE %s".formatted(tableName, newColumnName, newDataType));
-        stmt.executeUpdate(
-            "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, newColumnName, newComment));
-        break;
-      case Oracle:
-        stmt.executeUpdate(
-            "ALTER TABLE %s RENAME COLUMN %s TO %s".formatted(tableName, oldColumnName, newColumnName));
-        stmt.executeUpdate(
-            "ALTER TABLE %s MODIFY %s %s".formatted(tableName, newColumnName, newDataType));
-        stmt.executeUpdate(
-            "COMMENT ON COLUMN %s.%s IS '%s'".formatted(tableName, newColumnName, newComment));
-        break;
-      default:
-        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-    }
+    List<String> sqls = SqlHelper.createChangeColumnSqls(GcDatabaseProductNameEnum.of(stmt),
+        tableName,
+        oldColumnName,
+        GcColumnMetaDto
+            .builder()
+            .columnName(newColumnName)
+            .dataType(newDataType)
+            .columnComment(newComment)
+            .build());
+    executeBatch(stmt, sqls);
 
     return true;
   }
@@ -253,6 +229,15 @@ public class GcDbServiceImpl implements GcDbService {
     try (Statement stmt = conn.createStatement()) {
       stmt.executeUpdate(sql);
     }
+  }
+
+  @Override
+  public void executeBatch(Statement stmt, List<String> sqls) throws SQLException {
+    stmt.clearBatch();
+    for (String sql : sqls) {
+      stmt.addBatch(sql);
+    }
+    stmt.executeBatch();
   }
 
   @Override
@@ -302,35 +287,16 @@ public class GcDbServiceImpl implements GcDbService {
 
   @Override
   public boolean existsColumn(Statement stmt, String tableName, String columnName) throws SQLException {
-    switch (GcDatabaseProductNameEnum.of(stmt)) {
-      case MySQL:
-      case MariaDB:
-        try (ResultSet rs = stmt.executeQuery(
-            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
-                .formatted(tableName, columnName))) {
-          return rs.next();
-        }
-      case PostgreSQL:
-        try (ResultSet rs = stmt.executeQuery(
-            "SELECT * FROM information_schema.columns WHERE table_name = '%s' AND column_name = '%s'"
-                .formatted(tableName, columnName))) {
-          return rs.next();
-        }
-      case Oracle:
-        try (ResultSet rs = stmt.executeQuery(
-            "SELECT * FROM user_tab_columns WHERE table_name = '%s' AND column_name = '%s'"
-                .formatted(tableName, columnName))) {
-          return rs.next();
-        }
-      default:
-        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-
+    try (ResultSet rs = stmt.executeQuery(
+        SqlHelper.createExistsColumnSql(GcDatabaseProductNameEnum.of(stmt), tableName, columnName))) {
+      return rs.next();
     }
   }
 
   @Override
   public boolean dropTables(Statement stmt, List<String> tableNames) throws SQLException {
-    stmt.clearBatch();
+
+    List<String> sqls = new ArrayList<>();
 
     for (String tableName : tableNames) {
       if (!existsTable(stmt, tableName)) {
@@ -338,10 +304,10 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      stmt.addBatch("DROP TABLE " + tableName);
+      sqls.addAll(SqlHelper.createDropTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName));
     }
 
-    stmt.executeBatch();
+    executeBatch(stmt, sqls);
 
     return true;
   }
@@ -349,7 +315,8 @@ public class GcDbServiceImpl implements GcDbService {
   @Override
   public boolean changeTablesNames(Statement stmt, List<String> oldTableNames, List<String> newTableNames)
       throws SQLException {
-    stmt.clearBatch();
+
+    List<String> sqls = new ArrayList<>();
 
     for (int i = 0; i < oldTableNames.size(); i++) {
       String oldTableName = oldTableNames.get(i);
@@ -365,21 +332,20 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      stmt.addBatch("ALTER TABLE %s RENAME TO %s".formatted(oldTableName, newTableName));
+      sqls.addAll(SqlHelper.createChangeTableNameSqls(GcDatabaseProductNameEnum.of(stmt), oldTableName, newTableName));
     }
 
-    stmt.executeBatch();
+    executeBatch(stmt, sqls);
 
     return true;
   }
 
   @Override
-  public boolean addColumns(Statement stmt, List<String> tableNames, List<GcColumnMetaDto> columnMetaDtos)
+  public boolean addColumns(Statement stmt, String tableName, List<GcColumnMetaDto> columnMetaDtos)
       throws SQLException {
-    stmt.clearBatch();
+    List<String> sqls = new ArrayList<>();
 
-    for (int i = 0; i < tableNames.size(); i++) {
-      String tableName = tableNames.get(i);
+    for (int i = 0; i < columnMetaDtos.size(); i++) {
       GcColumnMetaDto columnMetaDto = columnMetaDtos.get(i);
 
       if (!existsTable(stmt, tableName)) {
@@ -392,48 +358,19 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      switch (GcDatabaseProductNameEnum.of(stmt)) {
-        case MySQL:
-        case MariaDB:
-          stmt.addBatch(
-              "ALTER TABLE %s ADD COLUMN %s %s COMMENT '%s'"
-                  .formatted(tableName,
-                      columnMetaDto.getColumnName(),
-                      columnMetaDto.getDataType(),
-                      columnMetaDto.getColumnComment()));
-          break;
-        case PostgreSQL:
-          stmt.addBatch(
-              "ALTER TABLE %s ADD COLUMN %s %s NULL"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getDataType()));
-          stmt.addBatch(
-              "COMMENT ON COLUMN %s.%s IS '%s'"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getColumnComment()));
-          break;
-        case Oracle:
-          stmt.addBatch(
-              "ALTER TABLE %s ADD %s %s NULL"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getDataType()));
-          stmt.addBatch(
-              "COMMENT ON COLUMN %s.%s IS '%s'"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getColumnComment()));
-          break;
-        default:
-          throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-      }
+      sqls.addAll(SqlHelper.createAddColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnMetaDto));
     }
 
-    stmt.executeBatch();
+    executeBatch(stmt, sqls);
 
     return true;
   }
 
   @Override
-  public boolean dropColumns(Statement stmt, List<String> tableNames, List<String> columnNames) throws SQLException {
-    stmt.clearBatch();
+  public boolean dropColumns(Statement stmt, String tableName, List<String> columnNames) throws SQLException {
+    List<String> sqls = new ArrayList<>();
 
-    for (int i = 0; i < tableNames.size(); i++) {
-      String tableName = tableNames.get(i);
+    for (int i = 0; i < columnNames.size(); i++) {
       String columnName = columnNames.get(i);
 
       if (!existsTable(stmt, tableName)) {
@@ -446,21 +383,20 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      stmt.addBatch("ALTER TABLE %s DROP COLUMN %s".formatted(tableName, columnName));
+      sqls.addAll(SqlHelper.createDropColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnName));
     }
 
-    stmt.executeBatch();
+    executeBatch(stmt, sqls);
 
     return true;
   }
 
   @Override
-  public boolean changeColumns(Statement stmt, List<String> tableNames, List<String> oldColumnNames,
+  public boolean changeColumns(Statement stmt, String tableName, List<String> oldColumnNames,
       List<GcColumnMetaDto> columnMetaDtos) throws SQLException {
-    stmt.clearBatch();
+    List<String> sqls = new ArrayList<>();
 
-    for (int i = 0; i < tableNames.size(); i++) {
-      String tableName = tableNames.get(i);
+    for (int i = 0; i < oldColumnNames.size(); i++) {
       String oldColumnName = oldColumnNames.get(i);
       GcColumnMetaDto columnMetaDto = columnMetaDtos.get(i);
 
@@ -479,78 +415,25 @@ public class GcDbServiceImpl implements GcDbService {
         continue;
       }
 
-      switch (GcDatabaseProductNameEnum.of(stmt)) {
-        case MySQL:
-        case MariaDB:
-          stmt.addBatch(
-              "ALTER TABLE %s CHANGE COLUMN %s %s %s NULL COMMENT '%s'"
-                  .formatted(tableName,
-                      oldColumnName,
-                      columnMetaDto.getColumnName(),
-                      columnMetaDto.getDataType(),
-                      columnMetaDto.getColumnComment()));
-          break;
-        case PostgreSQL:
-          stmt.addBatch(
-              "ALTER TABLE %s RENAME COLUMN %s TO %s"
-                  .formatted(tableName, oldColumnName, columnMetaDto.getColumnName()));
-          stmt.addBatch(
-              "ALTER TABLE %s ALTER COLUMN %s TYPE %s"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getDataType()));
-          stmt.addBatch(
-              "COMMENT ON COLUMN %s.%s IS '%s'"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getColumnComment()));
-          break;
-        case Oracle:
-          stmt.addBatch(
-              "ALTER TABLE %s RENAME COLUMN %s TO %s"
-                  .formatted(tableName, oldColumnName, columnMetaDto.getColumnName()));
-          stmt.addBatch(
-              "ALTER TABLE %s MODIFY %s %s"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getDataType()));
-          stmt.addBatch(
-              "COMMENT ON COLUMN %s.%s IS '%s'"
-                  .formatted(tableName, columnMetaDto.getColumnName(), columnMetaDto.getColumnComment()));
-          break;
-        default:
-          throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-      }
+      sqls.addAll(SqlHelper.createChangeColumnSqls(GcDatabaseProductNameEnum.of(stmt), tableName, oldColumnName,
+          columnMetaDto));
     }
 
-    stmt.executeBatch();
+    executeBatch(stmt, sqls);
 
     return true;
   }
 
   public boolean createTable(Statement stmt, String tableName, List<GcColumnMetaDto> columnMetaDtos)
       throws SQLException {
-    String sql = "";
 
     if (existsTable(stmt, tableName)) {
       log.warn("Table {} is already exists", tableName);
       return false;
     }
 
-    switch (GcDatabaseProductNameEnum.of(stmt)) {
-      case MariaDB:
-      case MySQL:
-        List<String> columns = columnMetaDtos
-            .stream()
-            .map(dto -> {
-              return " `%s` %s %s COMMENT '%s'"
-                  .formatted(dto.getColumnName(), dto.getDataType(), dto.isPrimaryKey() ? "primary key" : "",
-                      dto.getColumnComment());
-            })
-            .toList();
-
-        sql = " CREATE TABLE %s ( %s ) COMMENT ''".formatted(tableName, String.join(",", columns));
-        break;
-
-      default:
-        throw new RuntimeException("Not supported db type " + GcDatabaseProductNameEnum.of(stmt));
-    }
-
-    stmt.executeUpdate(sql);
+    List<String> sqls = SqlHelper.createCreateTableSqls(GcDatabaseProductNameEnum.of(stmt), tableName, columnMetaDtos);
+    executeBatch(stmt, sqls);
 
     return true;
   }
