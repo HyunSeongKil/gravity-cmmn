@@ -20,6 +20,8 @@ public interface GcDbService {
 
   void executeUpdate(Connection conn, String sql) throws SQLException;
 
+  void executeBatch(Statement stmt, List<String> sqls) throws SQLException;
+
   /**
    * ! 주의. 현재 mysql,mariadb만 지원
    * 
@@ -119,12 +121,12 @@ public interface GcDbService {
    * batch 처리
    * 
    * @param stmt
-   * @param tableNames
+   * @param tableName
    * @param columnMetaDtos
    * @return
    * @throws SQLException
    */
-  boolean addColumns(Statement stmt, List<String> tableNames, List<GcColumnMetaDto> columnMetaDtos) throws SQLException;
+  boolean addColumns(Statement stmt, String tableName, List<GcColumnMetaDto> columnMetaDtos) throws SQLException;
 
   /**
    * 
@@ -145,7 +147,7 @@ public interface GcDbService {
    * @return
    * @throws SQLException
    */
-  boolean dropColumns(Statement stmt, List<String> tableNames, List<String> columnNames) throws SQLException;
+  boolean dropColumns(Statement stmt, String tableName, List<String> columnNames) throws SQLException;
 
   /**
    * 
@@ -171,7 +173,7 @@ public interface GcDbService {
    * @return
    * @throws SQLException
    */
-  boolean changeColumns(Statement stmt, List<String> tableName, List<String> oldColumnNames,
+  boolean changeColumns(Statement stmt, String tableName, List<String> oldColumnNames,
       List<GcColumnMetaDto> columnMetaDtos) throws SQLException;
 
   /**
