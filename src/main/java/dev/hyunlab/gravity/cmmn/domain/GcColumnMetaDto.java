@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 /**
- * ! 중요. gravity-cmmn으로 이동 예정
  */
 @Data
 @Builder
@@ -14,10 +14,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GcColumnMetaDto {
   private String columnName;
-  private String dataType;
-  private String columnComment;
-  private Integer dataLength;
-  private Integer dataPrecision;
-  private boolean primaryKey;
-  private boolean nullable;
+
+  @Default
+  private String dataType = "varchar(100)";
+
+  @Default
+  private String columnComment = "";
+
+  @Default
+  private Integer dataLength = 10;
+
+  @Default
+  private Integer dataPrecision = 0;
+
+  @Default
+  private boolean primaryKey = false;
+
+  @Default
+  private boolean nullable = true;
 }
