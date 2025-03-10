@@ -237,12 +237,11 @@ public class GcSqlHelper {
       List<String> list = map.entrySet()
           .stream()
           .map(entry -> {
-            return " %s,".formatted(entry.getKey());
+            return " %s".formatted(entry.getKey());
           })
           .toList();
 
-      // remove last comma & return
-      return String.join("", list).trim().substring(0, list.size() - 1);
+      return String.join(",", list);
 
     };
 
@@ -250,12 +249,11 @@ public class GcSqlHelper {
       List<String> list = map.entrySet()
           .stream()
           .map(entry -> {
-            return " '%s',".formatted(entry.getValue());
+            return " '%s'".formatted(entry.getValue().toString().replaceAll("'", ""));
           })
           .toList();
 
-      // remove last comma & return
-      return String.join("", list).trim().substring(0, list.size() - 1);
+      return String.join(",", list);
     };
 
     // #endregion inner
