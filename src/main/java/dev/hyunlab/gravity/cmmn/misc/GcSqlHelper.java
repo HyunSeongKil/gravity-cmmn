@@ -1,6 +1,7 @@
 package dev.hyunlab.gravity.cmmn.misc;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -251,6 +252,8 @@ public class GcSqlHelper {
           .map(entry -> {
             if (entry.getValue().getClass() == String.class) {
               return " '%s'".formatted(entry.getValue().toString().replaceAll("'", ""));
+            } else if (entry.getValue().getClass() == Date.class) {
+              return " now()";
             } else {
               return " %s".formatted(entry.getValue());
             }
