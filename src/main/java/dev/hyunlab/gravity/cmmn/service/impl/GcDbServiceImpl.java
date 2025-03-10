@@ -232,12 +232,13 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public void executeBatch(Statement stmt, List<String> sqls) throws SQLException {
+  public int[] executeBatch(Statement stmt, List<String> sqls) throws SQLException {
     stmt.clearBatch();
     for (String sql : sqls) {
       stmt.addBatch(sql);
     }
-    stmt.executeBatch();
+
+    return stmt.executeBatch();
   }
 
   @Override
