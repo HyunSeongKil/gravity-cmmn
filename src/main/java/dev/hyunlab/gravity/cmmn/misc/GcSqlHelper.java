@@ -263,7 +263,8 @@ public class GcSqlHelper {
     return listOfMap
         .stream()
         .map(map -> {
-          return " INSERT INTO %s (%s) VALUES (%s)".formatted(tableName, columns, values);
+          return " INSERT INTO %s (%s) VALUES (%s)"
+              .formatted(tableName, columns.apply(map), values.apply(map));
         })
         .toList();
   }
