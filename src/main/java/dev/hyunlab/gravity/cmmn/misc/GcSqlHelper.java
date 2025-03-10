@@ -2,6 +2,8 @@ package dev.hyunlab.gravity.cmmn.misc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import dev.hyunlab.gravity.cmmn.domain.GcColumnMetaDto;
@@ -226,5 +228,43 @@ public class GcSqlHelper {
         throw new RuntimeException("Not supported db type " + dbNameEnum);
     }
 
+  }
+
+  public static List<String> createInsertSqls(GcDatabaseProductNameEnum dbNameEnum, String tableName,
+      List<Map<String, Object>> listOfMap) {
+    // #region inner
+    Function<Map<String, Object>, String> columns = (map) -> {
+      List<String> list = map.entrySet()
+          .stream()
+          .map(entry -> {
+            return " %s,".formatted(entry.getKey());
+          })
+          .toList();
+
+      // remove last comma & return
+      return String.join("", list).trim().substring(0, list.size() - 1);
+
+    };
+
+    Function<Map<String, Object>, String> values = (map) -> {
+      List<String> list = map.entrySet()
+          .stream()
+          .map(entry -> {
+            return " '%s',".formatted(entry.getValue());
+          })
+          .toList();
+
+      // remove last comma & return
+      return String.join("", list).trim().substring(0, list.size() - 1);
+    };
+
+    // #endregion inner
+
+    return listOfMap
+        .stream()
+        .map(map -> {
+          return " INSERT INTO %s (%s) VALUES (%s)".formatted(tableName, columns, values);
+        })
+        .toList();
   }
 }

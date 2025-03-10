@@ -440,4 +440,17 @@ public class GcDbServiceImpl implements GcDbService {
     return true;
   }
 
+  @Override
+  public int[] insertDatas(Statement stmt, String tableName, List<Map<String, Object>> listOfMap) throws SQLException {
+    List<String> sqls = GcSqlHelper.createInsertSqls(GcDatabaseProductNameEnum.of(stmt), tableName, listOfMap);
+
+    stmt.clearBatch();
+    for (String sql : sqls) {
+      stmt.addBatch(sql);
+    }
+
+    return stmt.executeBatch();
+
+  }
+
 }
