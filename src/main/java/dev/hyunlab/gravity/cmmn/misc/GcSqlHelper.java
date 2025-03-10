@@ -249,7 +249,11 @@ public class GcSqlHelper {
       List<String> list = map.entrySet()
           .stream()
           .map(entry -> {
-            return " '%s'".formatted(entry.getValue().toString().replaceAll("'", ""));
+            if (entry.getValue().getClass() == String.class) {
+              return " '%s'".formatted(entry.getValue().toString().replaceAll("'", ""));
+            } else {
+              return " %s".formatted(entry.getValue());
+            }
           })
           .toList();
 
