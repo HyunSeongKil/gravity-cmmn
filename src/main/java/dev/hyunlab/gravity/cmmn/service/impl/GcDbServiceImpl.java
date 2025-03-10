@@ -80,12 +80,12 @@ public class GcDbServiceImpl implements GcDbService {
 
   @Override
   public boolean existsTable(Statement stmt, String tableName) throws SQLException {
-    try {
-      stmt.executeQuery("SELECT * FROM %s".formatted(tableName));
-      return true;
-    } catch (Exception e) {
-      return false;
+    String sql = GcSqlHelper.createExistsTableSql(GcDatabaseProductNameEnum.of(stmt), tableName);
+
+    try (ResultSet rs = stmt.executeQuery(sql)) {
+      return rs.next();
     }
+
   }
 
   @Override

@@ -14,6 +14,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GcSqlHelper {
 
+  public static String createExistsTableSql(GcDatabaseProductNameEnum dbNameEnum, String tableName) {
+    switch (dbNameEnum) {
+      case MySQL:
+      case MariaDB:
+      case PostgreSQL:
+        return "SELECT * FROM information_schema.tables WHERE table_name = '%s'".formatted(tableName);
+
+      case Oracle:
+        return "SELECT * FROM user_tables WHERE table_name = '%s'".formatted(tableName);
+      default:
+        throw new RuntimeException("Not supported db type " + dbNameEnum);
+    }
+  }
+
   public static String createExistsColumnSql(GcDatabaseProductNameEnum dbNameEnum, String tableName,
       String columnName) {
     switch (dbNameEnum) {
