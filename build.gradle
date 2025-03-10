@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'dev.hyunlab'
-version = '1.25.0308'
+version = '1.25.0310'
 sourceCompatibility = '17'
 
 configurations {
