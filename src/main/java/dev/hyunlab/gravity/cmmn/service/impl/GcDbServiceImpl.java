@@ -450,7 +450,13 @@ public class GcDbServiceImpl implements GcDbService {
       stmt.addBatch(sql);
     }
 
-    return stmt.executeBatch();
+    try {
+      return stmt.executeBatch();
+    } catch (SQLException e) {
+      log.error("{}", e.getMessage());
+      log.error("{}", sqls);
+      throw e;
+    }
 
   }
 
