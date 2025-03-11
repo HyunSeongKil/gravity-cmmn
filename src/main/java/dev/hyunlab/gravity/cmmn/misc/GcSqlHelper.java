@@ -287,4 +287,22 @@ public class GcSqlHelper {
         })
         .toList();
   }
+
+  public static String createSelectColumnsSql(GcDatabaseProductNameEnum dbNameEnum, String tableName) {
+    switch (dbNameEnum) {
+      case MySQL:
+      case MariaDB:
+      case PostgreSQL:
+        return "SELECT column_name, data_type, character_maximum_length as data_length FROM information_schema.columns WHERE table_name = '%s'"
+            .formatted(tableName);
+
+      case Oracle:
+        return "SELECT column_name, data_type, data_length FROM user_tab_columns WHERE table_name = '%s'"
+            .formatted(tableName);
+
+      default:
+        throw new RuntimeException("Not supported db type " + dbNameEnum);
+    }
+
+  }
 }
