@@ -61,6 +61,27 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
+  public Set<GcColumnMetaDto> getColumnMetaDtoSet(Statement stmt, String tableName) throws SQLException {
+    String sql = GcSqlHelper.createSelectColumnsSql(GcDatabaseProductNameEnum.of(stmt), tableName);
+
+    try (ResultSet rs = stmt.executeQuery(sql)) {
+      Set<GcColumnMetaDto> set = new HashSet<>();
+      while (rs.next()) {
+        set.add(GcColumnMetaDto.builder()
+            .columnName(rs.getString("column_name"))
+            .dataType(rs.getString("data_type"))
+            .dataLength(rs.getInt("data_length"))
+            .build());
+      }
+      return set;
+    } catch (SQLException e) {
+      log.error("message:{}", e.getMessage());
+      log.error("sql:{}", sql);
+      throw e;
+    }
+  }
+
+  @Override
   public String createDatabaseUrl(GcDatabaseProductNameEnum databaseProductNameEnum, String ip, String port,
       String dbName) {
     switch (databaseProductNameEnum) {

@@ -96,6 +96,8 @@ public interface GcDbService {
 
         Set<String> getColumnNames(ResultSetMetaData rsmd) throws SQLException;
 
+        Set<GcColumnMetaDto> getColumnMetaDtoSet(Statement stmt, String tableName) throws SQLException;
+
         /**
          * 
          * @param stmt
