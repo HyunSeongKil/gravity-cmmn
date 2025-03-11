@@ -20,6 +20,8 @@ public interface GcDbService {
 
         void executeUpdate(Connection conn, String sql) throws SQLException;
 
+        void executeUpdate(Statement stmt, String sql) throws SQLException;
+
         int[] executeBatch(Statement stmt, List<String> sqls) throws SQLException;
 
         /**

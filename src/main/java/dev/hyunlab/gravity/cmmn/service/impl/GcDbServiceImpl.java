@@ -84,6 +84,10 @@ public class GcDbServiceImpl implements GcDbService {
 
     try (ResultSet rs = stmt.executeQuery(sql)) {
       return rs.next();
+    } catch (SQLException e) {
+      log.error("message:{}", e.getMessage());
+      log.error("sql:{}", sql);
+      throw e;
     }
 
   }
@@ -232,13 +236,30 @@ public class GcDbServiceImpl implements GcDbService {
   }
 
   @Override
-  public int[] executeBatch(Statement stmt, List<String> sqls) throws SQLException {
-    stmt.clearBatch();
-    for (String sql : sqls) {
-      stmt.addBatch(sql);
+  public void executeUpdate(Statement stmt, String sql) throws SQLException {
+    try {
+      stmt.executeUpdate(sql);
+    } catch (SQLException e) {
+      log.error("message:{}", e.getMessage());
+      log.error("sql:{}", sql);
+      throw e;
     }
+  }
 
-    return stmt.executeBatch();
+  @Override
+  public int[] executeBatch(Statement stmt, List<String> sqls) throws SQLException {
+    try {
+      stmt.clearBatch();
+      for (String sql : sqls) {
+        stmt.addBatch(sql);
+      }
+
+      return stmt.executeBatch();
+    } catch (SQLException e) {
+      log.error("message:{}", e.getMessage());
+      sqls.forEach(sql -> log.error("sql:{}", sql));
+      throw e;
+    }
   }
 
   @Override
@@ -255,7 +276,9 @@ public class GcDbServiceImpl implements GcDbService {
 
   @Override
   public List<Map<String, Object>> getDatas(Connection conn, String sql) throws SQLException {
-    return getDatas(conn.createStatement(), sql);
+    try (Statement stmt = conn.createStatement()) {
+      return getDatas(stmt, sql);
+    }
   }
 
   @Override
@@ -269,7 +292,8 @@ public class GcDbServiceImpl implements GcDbService {
         datas.add(createDataMap(rs, columnNames));
       }
     } catch (Exception e) {
-      log.error("{}", e);
+      log.error("message:{}", e.getMessage());
+      log.error("sql:{}", sql);
       throw e;
     }
 
@@ -445,19 +469,7 @@ public class GcDbServiceImpl implements GcDbService {
   public int[] insertDatas(Statement stmt, String tableName, List<Map<String, Object>> listOfMap) throws SQLException {
     List<String> sqls = GcSqlHelper.createInsertSqls(GcDatabaseProductNameEnum.of(stmt), tableName, listOfMap);
 
-    stmt.clearBatch();
-    for (String sql : sqls) {
-      stmt.addBatch(sql);
-    }
-
-    try {
-      return stmt.executeBatch();
-    } catch (SQLException e) {
-      log.error("{}", e.getMessage());
-      log.error("{}", sqls);
-      throw e;
-    }
-
+    return executeBatch(stmt, sqls);
   }
 
 }
