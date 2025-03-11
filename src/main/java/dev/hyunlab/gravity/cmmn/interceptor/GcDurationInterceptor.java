@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import dev.hyunlab.gravity.cmmn.misc.GcUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,7 +53,7 @@ public class GcDurationInterceptor implements HandlerInterceptor {
                 (new Date().getTime() - ((Date) request.getAttribute("startDt")).getTime()),
                 request.getMethod(),
                 request.getRequestURI(),
-                request.getQueryString());
+                request.getQueryString() != null ? request.getQueryString() : "");
 
     }
 
