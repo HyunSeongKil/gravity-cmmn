@@ -27,12 +27,15 @@ public class GcDurationInterceptor implements HandlerInterceptor {
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull Object handler)
             throws Exception {
+        if (request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
 
         request.setAttribute("startDt", new Date());
 
         // TODO 업무로직
 
-        log.info("<< {}", request.getRequestURI());
+        // log.info("<< {}", request.getRequestURI());
         return true;
     }
 
@@ -40,10 +43,17 @@ public class GcDurationInterceptor implements HandlerInterceptor {
     public void postHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull Object handler,
             @Nullable ModelAndView modelAndView) throws Exception {
+        if (request.getMethod().equals("OPTIONS")) {
+            return;
+        }
 
         // 소요시간
-        log.info("<< DURATION:{}ms {}", (new Date().getTime() - ((Date) request.getAttribute("startDt")).getTime()),
-                request.getRequestURI());
+        log.info("<< {}ms\t{}\t{}\t{}",
+                (new Date().getTime() - ((Date) request.getAttribute("startDt")).getTime()),
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString());
+
     }
 
     @Override
